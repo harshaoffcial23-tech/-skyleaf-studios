@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyLeaf Studios — Every Memory Deserves Its Own Film</title>
+<meta name="description" content="SkyLeaf Studios creates luxury wedding films, pre-wedding stories, and cinematic memories. Every client is the hero of their own movie.">
+<meta property="og:title" content="SkyLeaf Studios — Cinematic Wedding Films">
+<meta property="og:description" content="Not Photos. Not Videos. Stories You'll Rewatch Forever.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --bg2: #F8FAFC; /* Slate 50 */
+    --blue: #0066CC; /* Brand Blue */
+    --blue-glow: rgba(0, 102, 204, 0.1);
+    --green: #28A745; /* Brand Green */
+    --green-glow: rgba(40, 167, 69, 0.1);
+    --text: #0F172A; /* Slate 900 */
+    --text-muted: #475569; /* Slate 600 */
+    --border: rgba(0, 102, 204, 0.08);
+    --white: #FFFFFF;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    position: fixed; top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--blue);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0, 102, 204, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.25s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+  }
+  body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; background: var(--green); }
+  body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 54px; height: 54px; border-color: var(--green); }
+
+  /* ── FILM GRAIN ── */
+  #grain {
+    position: fixed; inset: 0; z-index: 9990;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    animation: grain 0.5s steps(2) infinite;
+  }
+  @keyframes grain {
+    0%,100% { transform: translate(0,0); }
+    25% { transform: translate(-2px,2px); }
+    50% { transform: translate(2px,-2px); }
+    75% { transform: translate(-1px,1px); }
+  }
+
+  /* ── LOADING SCREEN ── */
+  #loader {
+    position: fixed; inset: 0; z-index: 9000;
+    background: #FFFFFF;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+  #loader-text {
+    font-family: var(--sans);
+    font-size: clamp(11px,1.5vw,13px);
+    letter-spacing: 0.35em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    animation: fadeInUp 0.6s 0.3s both;
+  }
+  #loader-title {
+    font-family: var(--serif);
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+    animation: fadeInUp 0.8s 0.5s both;
+    text-align: center;
+    line-height: 1;
+  }
+  #loader-title span { color: var(--green); }
+  #loader-line {
+    width: 0; height: 1px;
+    background: var(--blue);
+    animation: lineExpand 1.2s 0.8s both;
+  }
+  @keyframes lineExpand { to { width: 120px; } }
+  #loader-tagline {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    animation: fadeInUp 0.6s 1.2s both;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── NAVIGATION ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 24px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.96) 0%, transparent 100%);
+    backdrop-filter: blur(0px);
+    transition: background 0.4s, backdrop-filter 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    padding: 16px 48px;
+    border-bottom: 0.5px solid rgba(0, 102, 204, 0.08);
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--text);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo .logo-leaf { color: var(--green); font-style: italic; }
+  .logo-img {
+    height: 38px;
+    width: 38px;
+    object-fit: contain;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--blue);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .nav-links a:hover { color: var(--blue); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-book {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    background: transparent;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+    cursor: none;
+  }
+  .nav-book:hover { background: var(--blue); color: #fff; }
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; background: none; border: none; padding: 4px; }
+  .nav-hamburger span { display: block; width: 24px; height: 1px; background: var(--text); transition: 0.3s; }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative; height: 100vh; min-height: 600px;
+    display: flex; align-items: flex-end;
+    overflow: hidden;
+  }
+  .hero-video-wrap {
+    position: absolute; inset: 0;
+    background: #FAFAFA;
+  }
+  .hero-video-wrap video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    animation: heroZoom 20s ease-in-out infinite alternate;
+  }
+  @keyframes heroZoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.06); }
+  }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(255,255,255,1) 0%,
+      rgba(255,255,255,0.4) 50%,
+      rgba(255,255,255,0.1) 100%
+    );
+  }
+  .hero-spotlight {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 60% at 50% 40%, rgba(0, 102, 204, 0.04) 0%, transparent 70%);
+  }
+  .particles {
+    position: absolute; inset: 0; pointer-events: none;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 1px; height: 1px;
+    background: rgba(0, 102, 204, 0.4);
+    border-radius: 50%;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    from { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.6; }
+    to { transform: translateY(-20px) translateX(var(--drift)); opacity: 0; }
+  }
+  .light-leak {
+    position: absolute; top: 0; left: -20%; width: 60%; height: 40%;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 80px 100px;
+    max-width: 900px;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeInUp 0.8s 2.2s forwards;
+    font-weight: 500;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(44px, 6.5vw, 88px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: 0.03em;
+    margin-bottom: 28px;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeInUp 1s 2.4s forwards;
+  }
+  .hero-title em { font-style: italic; color: var(--green); }
+  .hero-services {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeInUp 0.8s 2.7s forwards;
+  }
+  .hero-service-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border: 0.5px solid rgba(15, 23, 42, 0.12);
+    background: rgba(255,255,255,0.7);
+    border-radius: 4px;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0;
+    animation: fadeInUp 0.8s 3s forwards;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 30px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.3s;
+    cursor: none;
+    border-radius: 4px;
+  }
+  .btn-primary:hover { background: #0052cc; transform: translateY(-2px); }
+  .btn-primary .play-icon { font-size: 14px; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 30px;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 0.3s, color 0.3s;
+    cursor: none;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.7);
+  }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+  .hero-scroll-hint {
+    position: absolute; bottom: 32px; right: 80px;
+    z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeInUp 0.8s 3.5s forwards;
+  }
+  .scroll-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); writing-mode: vertical-rl; }
+  .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--blue), transparent); animation: scrollLine 2s ease-in-out infinite; }
+  @keyframes scrollLine { 0%,100% { transform: scaleY(1); opacity: 0.6; } 50% { transform: scaleY(0.5); opacity: 1; } }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 100px 80px; }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 16px;
+    display: block;
+    font-weight: 500;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(34px, 4.5vw, 60px);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .section-title em { font-style: italic; color: var(--green); }
+  .gold-line {
+    width: 48px; height: 1px;
+    background: var(--blue);
+    margin-bottom: 48px;
+  }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ── FEATURED STORY ── */
+  #featured {
+    padding: 0;
+    position: relative;
+    height: 85vh; min-height: 550px;
+    display: flex; align-items: flex-end;
+    overflow: hidden;
+    background: #F8FAFC;
+    border-top: 1px solid rgba(0, 102, 204, 0.05);
+    border-bottom: 1px solid rgba(0, 102, 204, 0.05);
+  }
+  .featured-bg {
+    position: absolute; inset: 0;
+    background: #E2E8F0;
+  }
+  .featured-bg-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      105deg,
+      rgba(255,255,255,0.98) 0%,
+      rgba(255,255,255,0.85) 45%,
+      rgba(255,255,255,0.2) 100%
+    );
+  }
+  .featured-visual {
+    position: absolute; right: 0; top: 0;
+    width: 55%; height: 100%;
+    overflow: hidden;
+  }
+  .featured-visual::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 70% at 60% 50%, rgba(0, 102, 204, 0.05) 0%, transparent 60%),
+      linear-gradient(to left, transparent 0%, rgba(255,255,255,0.95) 100%);
+    z-index: 1;
+  }
+  /* Cinematic frame lines */
+  .featured-frame {
+    position: absolute; inset: 40px;
+    border: 0.5px solid rgba(0, 102, 204, 0.1);
+    pointer-events: none;
+  }
+  .featured-frame::before, .featured-frame::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--blue);
+    border-style: solid;
+    opacity: 0.4;
+  }
+  .featured-frame::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+  .featured-frame::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+  .featured-content {
+    position: relative; z-index: 2;
+    padding: 80px;
+    max-width: 620px;
+  }
+  .featured-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10px; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--blue);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .featured-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--blue); border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.5); } }
+  .featured-story-title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 300;
+    line-height: 1.05;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .featured-story-title em { color: var(--green); font-style: italic; }
+  .featured-meta {
+    display: flex; gap: 20px; align-items: center;
+    margin-bottom: 24px;
+  }
+  .featured-meta span {
+    font-size: 12px; letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+  .featured-meta .dot { width: 3px; height: 3px; background: var(--green); border-radius: 50%; }
+  .featured-desc {
+    font-size: 15px; line-height: 1.75;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+    max-width: 440px;
+  }
+  .featured-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-featured-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 26px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-decoration: none; cursor: none;
+    transition: background 0.3s;
+    border-radius: 4px;
+  }
+  .btn-featured-primary:hover { background: #0052cc; }
+  .btn-featured-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px;
+    border: 0.5px solid rgba(15, 23, 42, 0.2);
+    color: var(--text-muted);
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    text-decoration: none; cursor: none;
+    transition: border-color 0.3s, color 0.3s;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.7);
+  }
+  .btn-featured-ghost:hover { border-color: var(--blue); color: var(--blue); }
+  .featured-rating {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 32px;
+  }
+  .stars { color: var(--blue); font-size: 14px; letter-spacing: 2px; }
+  .rating-text { font-size: 12px; color: var(--text-muted); letter-spacing: 0.05em; }
+
+  /* ── CONTINUE WATCHING ── */
+  #continue-watching { background: var(--bg2); }
+  .row-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .row-title {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2.5vw, 32px);
+    font-weight: 300;
+    color: var(--text);
+  }
+  .row-see-all {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--blue); text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    cursor: none;
+    transition: gap 0.3s;
+    font-weight: 500;
+  }
+  .row-see-all:hover { gap: 10px; }
+  .carousel-track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  .movie-card {
+    position: relative;
+    aspect-ratio: 9/14;
+    background: #E2E8F0;
+    overflow: hidden;
+    cursor: none;
+    flex-shrink: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+  }
+  .movie-card-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.6s ease;
+  }
+  .movie-card:hover .movie-card-bg { transform: scale(1.08); }
+  .movie-card-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.2) 50%, transparent 100%);
+    transition: opacity 0.4s;
+  }
+  .movie-card:hover .movie-card-gradient { opacity: 0.7; }
+  .movie-card-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 20px 16px;
+    transform: translateY(8px);
+    transition: transform 0.4s;
+  }
+  .movie-card:hover .movie-card-info { transform: translateY(0); }
+  .card-category {
+    font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 17px; font-weight: 300;
+    line-height: 1.25;
+    margin-bottom: 8px;
+    color: #FFFFFF;
+  }
+  .card-meta { font-size: 11px; color: rgba(255,255,255,0.7); }
+  .card-play {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0);
+    width: 48px; height: 48px;
+    border: 1.5px solid var(--blue);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue); font-size: 16px;
+    transition: transform 0.4s ease;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+  }
+  .movie-card:hover .card-play { transform: translate(-50%,-50%) scale(1); }
+
+  /* ── ORIGINALS ── */
+  #originals { padding: 80px; }
+  .originals-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 12px;
+    margin-top: 48px;
+  }
+  .original-card {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+  }
+  .original-card.featured-orig { grid-row: 1 / 3; }
+  .original-card.featured-orig { aspect-ratio: 2/3; }
+  .original-card:not(.featured-orig) { aspect-ratio: 3/2; }
+  .orig-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.7s ease;
+  }
+  .original-card:hover .orig-bg { transform: scale(1.05); }
+  .orig-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.2) 50%, transparent 100%);
+  }
+  .orig-badge {
+    position: absolute; top: 20px; left: 20px;
+    font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--green);
+    padding: 5px 10px;
+    border: 0.5px solid rgba(40,167,69,0.3);
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .orig-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 24px 20px;
+  }
+  .orig-title {
+    font-family: var(--serif);
+    font-size: clamp(18px, 2vw, 26px);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    color: #FFFFFF;
+  }
+  .orig-desc { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+  /* ── COLLECTIONS ── */
+  #collections { background: var(--bg2); }
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+  .collection-item {
+    padding: 44px 36px;
+    background: var(--white);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    cursor: none;
+    transition: transform 0.4s, box-shadow 0.4s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+  }
+  .collection-item::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,102,204,0.03) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .collection-item:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border-color: rgba(0, 102, 204, 0.15); }
+  .collection-item:hover::before { opacity: 1; }
+  .collection-num {
+    font-size: 10px; letter-spacing: 0.3em;
+    color: var(--blue); opacity: 0.6;
+    margin-bottom: 20px; display: block;
+    font-weight: 600;
+  }
+  .collection-icon {
+    font-size: 28px; margin-bottom: 20px;
+    display: block;
+  }
+  .collection-name {
+    font-family: var(--serif);
+    font-size: clamp(18px, 1.8vw, 26px);
+    font-weight: 300;
+    line-height: 1.25;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .collection-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+  .collection-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 24px;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--blue); text-decoration: none;
+    cursor: none;
+    transition: gap 0.3s;
+    font-weight: 500;
+  }
+  .collection-item:hover .collection-link { gap: 14px; }
+
+  /* ── REVIEWS ── */
+  .reviews-header { text-align: center; margin-bottom: 64px; }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .review-card {
+    background: var(--white);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    padding: 36px 28px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+  }
+  .review-quote {
+    font-size: 48px;
+    font-family: var(--serif);
+    color: var(--blue);
+    opacity: 0.2;
+    line-height: 1;
+    margin-bottom: -8px;
+  }
+  .review-stars { color: var(--blue); font-size: 12px; letter-spacing: 3px; margin-bottom: 16px; }
+  .review-text {
+    font-family: var(--serif);
+    font-size: clamp(15px, 1.4vw, 19px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 28px;
+  }
+  .review-author { display: flex; align-items: center; gap: 14px; }
+  .review-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 102, 204, 0.06);
+    border: 1px solid rgba(0, 102, 204, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 500; color: var(--blue);
+  }
+  .review-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .review-event { font-size: 12px; color: var(--text-muted); letter-spacing: 0.05em; }
+  .review-tag {
+    position: absolute; top: 20px; right: 20px;
+    font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--green); opacity: 0.8;
+    font-weight: 600;
+  }
+
+  /* ── STATS ── */
+  #stats { background: var(--bg2); text-align: center; padding: 80px; }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 48px; margin-top: 64px;
+  }
+  .stat-number {
+    font-family: var(--serif);
+    font-size: clamp(48px, 5vw, 80px);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-number span { color: var(--blue); }
+  .stat-label {
+    font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .stats-divider {
+    width: 1px; background: rgba(0, 102, 204, 0.1);
+    align-self: stretch;
+  }
+
+  /* ── TRENDING REELS ── */
+  .reels-track {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-top: 48px;
+  }
+  .reel-card {
+    position: relative;
+    aspect-ratio: 9/16;
+    background: #E2E8F0;
+    overflow: hidden;
+    cursor: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+  }
+  .reel-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.5s;
+  }
+  .reel-card:hover .reel-bg { transform: scale(1.05); }
+  .reel-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);
+  }
+  .reel-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 16px 12px;
+  }
+  .reel-title { font-family: var(--serif); font-size: 14px; font-weight: 400; color: #FFFFFF; margin-bottom: 4px; }
+  .reel-views { font-size: 10px; color: rgba(255,255,255,0.7); letter-spacing: 0.05em; }
+  .reel-play {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0);
+    width: 40px; height: 40px;
+    border: 1px solid rgba(0, 102, 204, 0.6);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue); font-size: 14px;
+    transition: transform 0.3s;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 4px 10px rgba(0, 102, 204, 0.15);
+  }
+  .reel-card:hover .reel-play { transform: translate(-50%,-50%) scale(1); }
+
+  /* ── BOOKING CTA ── */
+  #booking {
+    position: relative;
+    text-align: center;
+    padding: 140px 80px;
+    overflow: hidden;
+    background: #FFFFFF;
+    border-top: 1px solid rgba(0, 102, 204, 0.06);
+  }
+  .booking-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 40%, #f0fdf4 100%);
+  }
+  .booking-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0, 102, 204, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .booking-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+  .booking-title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 5.5vw, 80px);
+    font-weight: 300;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    letter-spacing: 0.03em;
+    color: var(--text);
+  }
+  .booking-title em { color: var(--blue); font-style: italic; }
+  .booking-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 48px; line-height: 1.7; letter-spacing: 0.02em; }
+  .booking-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-whatsapp {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 30px;
+    background: rgba(40, 167, 69, 0.08);
+    border: 1px solid rgba(40, 167, 69, 0.2);
+    color: #2E7D32;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-decoration: none; cursor: none;
+    transition: background 0.3s;
+    border-radius: 4px;
+  }
+  .btn-whatsapp:hover { background: rgba(40, 167, 69, 0.15); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0F172A;
+    padding: 60px 80px 40px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-top {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 48px; margin-bottom: 48px;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 26px; font-weight: 300;
+    letter-spacing: 0.12em; margin-bottom: 16px;
+    color: #FFFFFF;
+  }
+  .footer-logo span { color: var(--green); font-style: italic; }
+  .footer-tagline { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.65; max-width: 240px; }
+  .footer-col h4 {
+    font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 10px; }
+  .footer-col ul a {
+    font-size: 13px; color: rgba(255,255,255,0.6);
+    text-decoration: none; cursor: none;
+    transition: color 0.3s;
+  }
+  .footer-col ul a:hover { color: #FFFFFF; }
+  .footer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 28px;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .footer-copy span { color: var(--blue); }
+  .footer-social { display: flex; gap: 16px; }
+  .footer-social a {
+    width: 36px; height: 36px;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.5); font-size: 14px; text-decoration: none;
+    cursor: none; transition: border-color 0.3s, color 0.3s;
+  }
+  .footer-social a:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* ── CINEMATIC EXPERIENCE CONTROLS ── */
+  #cin-toggle {
+    position: fixed; bottom: 28px; left: 28px; z-index: 1000;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.95);
+    border: 0.5px solid rgba(0, 102, 204, 0.25);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.08);
+    cursor: none;
+    transition: border-color 0.3s;
+    border-radius: 6px;
+  }
+  #cin-toggle:hover { border-color: var(--blue); }
+  #cin-toggle-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(0, 102, 204, 0.3);
+    border: 1px solid rgba(0, 102, 204, 0.5);
+    transition: background 0.3s;
+  }
+  #cin-toggle.active #cin-toggle-dot { background: var(--blue); box-shadow: 0 0 8px rgba(0, 102, 204, 0.5); }
+  #cin-toggle-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); }
+
+  /* ── MOBILE NAV ── */
+  #mobile-nav {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(255,255,255,0.98);
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 32px;
+  }
+  #mobile-nav.open { display: flex; }
+  #mobile-nav a {
+    font-family: var(--serif);
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 300;
+    color: var(--text-muted); text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.3s;
+  }
+  #mobile-nav a:hover { color: var(--blue); }
+  #mobile-nav-close {
+    position: absolute; top: 24px; right: 28px;
+    background: none; border: none; cursor: none;
+    color: var(--text-muted); font-size: 28px; line-height: 1;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .carousel-track { grid-template-columns: repeat(3, 1fr); }
+    .originals-grid { grid-template-columns: 1fr 1fr; }
+    .original-card.featured-orig { grid-row: auto; aspect-ratio: 3/2; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .reviews-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    section { padding: 70px 24px; }
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .nav-links, .nav-book { display: none; }
+    .nav-hamburger { display: flex; }
+    .hero-content { padding: 0 24px 80px; }
+    .hero-scroll-hint { right: 24px; }
+    .featured-content { padding: 48px 28px 40px; }
+    .featured-visual { width: 100%; opacity: 0.2; }
+    .carousel-track { grid-template-columns: repeat(2, 1fr); }
+    .originals-grid { grid-template-columns: 1fr; }
+    .collections-grid { grid-template-columns: 1fr; }
+    .reviews-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+    .reels-track { grid-template-columns: repeat(3, 1fr); }
+    .booking-ctas { flex-direction: column; align-items: center; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+    #originals { padding: 70px 24px; }
+    #stats { padding: 70px 24px; }
+  }
+  @media (max-width: 480px) {
+    .carousel-track { grid-template-columns: repeat(2, 1fr); }
+    .reels-track { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* ── VIDEO MODAL ── */
+  .video-modal {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s;
+  }
+  .video-modal.open {
+    opacity: 1; visibility: visible;
+  }
+  .video-modal-container {
+    width: 90%; max-width: 960px;
+    aspect-ratio: 16/9;
+    background: #000;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: scale(0.92);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .video-modal.open .video-modal-container {
+    transform: scale(1);
+  }
+  .video-wrapper {
+    width: 100%; height: 100%;
+    position: relative;
+  }
+  .video-wrapper iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  }
+  .video-modal-close {
+    position: absolute; top: 32px; right: 48px;
+    background: none; border: none;
+    color: #FFFFFF; font-size: 44px; font-weight: 200;
+    cursor: none; line-height: 1;
+    transition: color 0.3s, transform 0.3s;
+    z-index: 10001;
+  }
+  .video-modal-close:hover {
+    color: var(--blue);
+    transform: scale(1.1);
+  }
+
+  /* ── PORTFOLIO GALLERY ── */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+  .gallery-item {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 102, 204, 0.06);
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+    cursor: none;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s;
+  }
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    border-color: rgba(0, 102, 204, 0.15);
+  }
+  .gallery-item:hover img {
+    transform: scale(1.05);
+  }
+  .gallery-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    display: flex; align-items: flex-end;
+    padding: 24px;
+  }
+  .gallery-item:hover .gallery-overlay {
+    opacity: 1;
+  }
+  .gallery-text {
+    color: #FFFFFF;
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 300;
+  }
+  .gallery-tag {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  /* ── LIGHTBOX MODAL ── */
+  .lightbox-modal {
+    position: fixed; inset: 0; z-index: 10002;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s;
+  }
+  .lightbox-modal.open {
+    opacity: 1; visibility: visible;
+  }
+  .lightbox-content-wrapper {
+    width: 90%; max-width: 800px;
+    max-height: 80vh;
+    display: flex; flex-direction: column; align-items: center;
+    transform: scale(0.92);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .lightbox-modal.open .lightbox-content-wrapper {
+    transform: scale(1);
+  }
+  .lightbox-content-wrapper img {
+    max-width: 100%; max-height: 75vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .lightbox-caption {
+    margin-top: 16px;
+    color: #FFFFFF;
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 300;
+    text-align: center;
+  }
+  .lightbox-close {
+    position: absolute; top: 32px; right: 48px;
+    background: none; border: none;
+    color: #FFFFFF; font-size: 44px; font-weight: 200;
+    cursor: none; line-height: 1;
+    transition: color 0.3s, transform 0.3s;
+    z-index: 10003;
+  }
+  .lightbox-close:hover {
+    color: var(--blue);
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 900px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .gallery-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── PLYR VIDEO THEME ── */
+  :root {
+    --plyr-color-main: var(--blue);
+    --plyr-video-background: #000000;
+  }
+  .video-wrapper .plyr {
+    height: 100%;
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+</head>
+<body>
+
+<!-- Video Modal -->
+<div id="video-modal" class="video-modal" aria-hidden="true" role="dialog">
+  <button class="video-modal-close" id="modal-close" aria-label="Close video">&times;</button>
+  <div class="video-modal-container">
+    <div class="video-wrapper">
+      <div id="player" class="plyr__video-embed">
+        <iframe src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Film Grain -->
+<div id="grain" aria-hidden="true"></div>
+
+<!-- Custom Cursor -->
+<div id="cursor" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<!-- Loading Screen -->
+<div id="loader" role="status" aria-label="Loading SkyLeaf Studios">
+  <div id="loader-text">SkyLeaf Studios Presents</div>
+  <div id="loader-title">Sky<span>Leaf</span></div>
+  <div id="loader-line"></div>
+  <div id="loader-tagline">Every Memory Deserves Its Own Film</div>
+</div>
+
+<!-- Navigation -->
+<nav id="navbar" role="navigation" aria-label="Main navigation">
+  <a href="#" class="nav-logo">
+    <img src="logo.png" alt="SkyLeaf Studios Logo" class="logo-img">
+    <span>Sky<span class="logo-leaf">Leaf</span> Studios</span>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="#continue-watching">Watch Stories</a></li>
+        <li><a href="#collections">Collections</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#originals">Originals</a></li>
+    <li><a href="#reels">Reels</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#booking">About</a></li>
+  </ul>
+  <a href="#booking" class="nav-book">Book Now</a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Nav -->
+<div id="mobile-nav" role="dialog" aria-label="Mobile navigation" aria-hidden="true">
+  <button id="mobile-nav-close" aria-label="Close menu">×</button>
+  <a href="#continue-watching">Watch Stories</a>
+  <a href="#collections">Collections</a>
+  <a href="#portfolio">Portfolio</a>
+  <a href="#originals">Originals</a>
+  <a href="#reels">Reels</a>
+  <a href="#reviews">Reviews</a>
+  <a href="#booking">Book Now</a>
+</div>
+
+<!-- ── HERO ── -->
+<section id="hero" aria-label="Hero — SkyLeaf Studios">
+  <div class="hero-video-wrap">
+    <!-- Cinematic gradient stands in for actual video -->
+    <div style="width:100%;height:100%;background:linear-gradient(135deg,#e0f2fe 0%,#f0fdf4 50%,#eef2f6 100%);position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0, 102, 204, 0.08) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 20% 70%, rgba(40, 167, 69, 0.06) 0%,transparent 50%);"></div>
+    </div>
+  </div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="hero-spotlight" aria-hidden="true"></div>
+  <div class="light-leak" aria-hidden="true"></div>
+  <div class="particles" id="particles" aria-hidden="true"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Est. 2019 · Nellore, Andhra Pradesh, India</span>
+    <h1 class="hero-title">
+      Every <em>Love Story</em><br>Deserves Its Own Film.
+    </h1>
+    <div class="hero-services">
+      <span class="hero-service-tag">Wedding Films</span>
+      <span class="hero-service-tag">Pre-Wedding Stories</span>
+      <span class="hero-service-tag">Family Portraits</span>
+      <span class="hero-service-tag">Baby Diaries</span>
+      <span class="hero-service-tag">Cinematic Reels</span>
+    </div>
+    <div class="hero-ctas">
+      <a href="#featured" class="btn-primary">
+        <span class="play-icon">▶</span> Watch Featured Story
+      </a>
+      <a href="#booking" class="btn-ghost">
+        📅 Book Your Story
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint" aria-hidden="true">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
+
+<!-- ── FEATURED STORY ── -->
+<section id="featured" aria-label="Featured Story of the Month">
+  <div class="featured-bg">
+    <div class="featured-visual" id="featured-banner-bg" style="background: url('IMG_5708.PNG') center/cover no-repeat;" aria-hidden="true"></div>
+    <div class="featured-bg-gradient" aria-hidden="true"></div>
+  </div>
+  <div class="featured-frame" aria-hidden="true"></div>
+  <div class="featured-content">
+    <div class="featured-badge" id="featured-badge-text">Story of the Month</div>
+    <h2 class="featured-story-title" id="featured-story-title">
+      Monsoon <em>Love</em><br>Story
+    </h2>
+    <div class="featured-meta" id="featured-meta-info">
+      <span>Arjun &amp; Priya</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span>Udaipur, Rajasthan</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span>2024</span>
+    </div>
+    <p class="featured-desc" id="featured-story-desc">
+      Amid monsoon mists and ancient havelis, two souls found their forever. A three-day wedding celebration that reads like a love poem — and lives on screen like a film.
+    </p>
+    <div class="featured-ctas">
+      <a href="javascript:void(0)" class="btn-featured-primary play-video-btn" id="featured-play-btn" data-video-url="https://www.youtube.com/embed/2g811EoVkWc">&blacktriangledown; Watch Trailer</a>
+      <a href="#booking" class="btn-featured-ghost">📅 Book Similar</a>
+    </div>
+    <div class="featured-rating">
+      <div class="stars" aria-label="5 stars">★★★★★</div>
+      <span class="rating-text">Featured Wedding Film</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTINUE WATCHING ── -->
+<section id="continue-watching" aria-label="Continue Watching — Story Collection">
+  <span class="section-label reveal">Continue Watching</span>
+  <div class="row-header reveal reveal-delay-1">
+    <h2 class="row-title">Wedding <em style="font-family:var(--serif);font-style:italic;color:var(--green)">Stories</em></h2>
+    <a href="#" class="row-see-all">See All →</a>
+  </div>
+  <div class="carousel-track reveal reveal-delay-2" id="continue-watching-track">
+    <!-- Dynamic Content from localStorage -->
+  </div>
+</section>
+
+<!-- ── SKYLEAF ORIGINALS ── -->
+<section id="originals" aria-label="SkyLeaf Originals">
+  <div class="reveal">
+    <span class="section-label">SkyLeaf Originals</span>
+    <h2 class="section-title">Our Signature <em>Productions</em></h2>
+    <div class="gold-line"></div>
+  </div>
+  <div class="originals-grid" id="originals-grid-container">
+    <!-- Dynamic Content from localStorage -->
+  </div>
+</section>
+
+<!-- ── COLLECTIONS ── -->
+<section id="collections" aria-label="Memory Collections">
+  <span class="section-label reveal">Memory Collections</span>
+  <h2 class="section-title reveal reveal-delay-1">What We <em>Create</em></h2>
+  <div class="gold-line reveal reveal-delay-2"></div>
+  <div class="collections-grid">
+    <div class="collection-item reveal">
+      <span class="collection-num">01</span>
+      <span class="collection-icon" aria-hidden="true">💍</span>
+      <h3 class="collection-name">Wedding Photography &amp; Cinematic Videography</h3>
+      <p class="collection-desc">From sangeet to bidaai — every ritual, every tear, every laugh, told as a film that outlasts the occasion.</p>
+      <a href="#booking" class="collection-link">Explore Collection →</a>
+    </div>
+    <div class="collection-item reveal reveal-delay-1">
+      <span class="collection-num">02</span>
+      <span class="collection-icon" aria-hidden="true">🎬</span>
+      <h3 class="collection-name">Pre-Wedding Films</h3>
+      <p class="collection-desc">Your story before the story. Shot at golden hour, in rain, in ruins — wherever love looks most like itself.</p>
+      <a href="#booking" class="collection-link">Explore Collection →</a>
+    </div>
+    <div class="collection-item reveal reveal-delay-2">
+      <span class="collection-num">03</span>
+      <span class="collection-icon" aria-hidden="true">🌿</span>
+      <h3 class="collection-name">Baby &amp; Newborn Stories</h3>
+      <p class="collection-desc">The first yawn. The first grip. The first everything. Captured with the softness those moments deserve.</p>
+      <a href="#booking" class="collection-link">Explore Collection →</a>
+    </div>
+    <div class="collection-item reveal">
+      <span class="collection-num">04</span>
+      <span class="collection-icon" aria-hidden="true">👨‍👩‍👧</span>
+      <h3 class="collection-name">Family &amp; Maternity Portraits</h3>
+      <p class="collection-desc">Not poses — moments. The chaos of Sunday mornings and the warmth of belonging, preserved on film.</p>
+      <a href="#booking" class="collection-link">Explore Collection →</a>
+    </div>
+    <div class="collection-item reveal reveal-delay-1">
+      <span class="collection-num">05</span>
+      <span class="collection-icon" aria-hidden="true">📱</span>
+      <h3 class="collection-name">Cinematic Reels</h3>
+      <p class="collection-desc">Short-form content that stops the scroll. Vertical films crafted for Instagram with the same care as a feature.</p>
+      <a href="#booking" class="collection-link">Explore Collection →</a>
+    </div>
+    <div class="collection-item reveal reveal-delay-2">
+      <span class="collection-num">06</span>
+      <span class="collection-icon" aria-hidden="true">🎥</span>
+      <h3 class="collection-name">Creative Productions</h3>
+      <p class="collection-desc">Brand films, music videos, commercial shoots — visual storytelling for creators and businesses.</p>
+      <a href="#booking" class="collection-link">Explore Collection →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── PORTFOLIO GALLERY ── -->
+<section id="portfolio" aria-label="Cinematic Frames Portfolio">
+  <span class="section-label reveal">Portfolio Gallery</span>
+  <h2 class="section-title reveal reveal-delay-1">Frames We Are <em>Proud Of</em></h2>
+  <div class="gold-line reveal reveal-delay-2"></div>
+  
+  <div class="gallery-grid">
+    <div class="gallery-item reveal" onclick="openLightbox('IMG_5708.PNG', 'Cinematic Pre-Wedding Sunset - Duppata wave')">
+      <img src="IMG_5708.PNG" alt="Duppata wave sunset shoot">
+      <div class="gallery-overlay">
+        <div>
+          <div class="gallery-tag">Pre-Wedding</div>
+          <div class="gallery-text">Sunset Breeze</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="gallery-item reveal reveal-delay-1" onclick="openLightbox('IMG_5711.PNG', 'Cinematic Pre-Wedding Sunset - Profile look')">
+      <img src="IMG_5711.PNG" alt="Profile look sunset shoot">
+      <div class="gallery-overlay">
+        <div>
+          <div class="gallery-tag">Pre-Wedding</div>
+          <div class="gallery-text">Golden Hour Glance</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="gallery-item reveal reveal-delay-2" onclick="openLightbox('IMG_5709.PNG', 'Cinematic Pre-Wedding Sunset - Riverside Walk')">
+      <img src="IMG_5709.PNG" alt="Riverside walk sunset shoot">
+      <div class="gallery-overlay">
+        <div>
+          <div class="gallery-tag">Pre-Wedding</div>
+          <div class="gallery-text">Pathway to Forever</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="gallery-item reveal reveal-delay-3" onclick="openLightbox('IMG_6060.JPG.jpeg', 'Editorial Maternity / Family Portrait')">
+      <img src="IMG_6060.JPG.jpeg" alt="Maternity family editorial portrait">
+      <div class="gallery-overlay">
+        <div>
+          <div class="gallery-tag">Portrait Session</div>
+          <div class="gallery-text">Moments in Bloom</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox Overlay -->
+<div id="lightbox-modal" class="lightbox-modal" aria-hidden="true" role="dialog" onclick="closeLightbox()">
+  <button class="lightbox-close" aria-label="Close image">&times;</button>
+  <div class="lightbox-content-wrapper" onclick="event.stopPropagation()">
+    <img id="lightbox-img" src="" alt="Zoomed portfolio image">
+    <div id="lightbox-caption" class="lightbox-caption"></div>
+  </div>
+</div>
+
+<!-- ── AUDIENCE REVIEWS ── -->
+<section id="reviews" aria-label="Audience Reviews">
+  <div class="reviews-header reveal">
+    <span class="section-label" style="display:block;margin-bottom:12px;">Audience Reviews</span>
+    <h2 class="section-title">What Our <em>Clients</em> Say</h2>
+    <div class="gold-line" style="margin:16px auto 0;"></div>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card reveal">
+      <div class="review-quote" aria-hidden="true">"</div>
+      <div class="review-stars" aria-label="5 stars">★★★★★</div>
+      <p class="review-text">We didn't just get a wedding film. We got a film we've watched 47 times and still cry at. SkyLeaf didn't document our day — they gave it a soul.</p>
+      <div class="review-author">
+        <div class="review-avatar" aria-hidden="true">AP</div>
+        <div>
+          <div class="review-name">Anika &amp; Prashant</div>
+          <div class="review-event">Wedding Film · Hyderabad</div>
+        </div>
+      </div>
+      <span class="review-tag">Verified Client</span>
+    </div>
+    <div class="review-card reveal reveal-delay-1">
+      <div class="review-quote" aria-hidden="true">"</div>
+      <div class="review-stars" aria-label="5 stars">★★★★★</div>
+      <p class="review-text">I've shown my pre-wedding film to every person I know. The way they found light, framed emotions, and told our story — it's nothing short of cinema.</p>
+      <div class="review-author">
+        <div class="review-avatar" aria-hidden="true">RS</div>
+        <div>
+          <div class="review-name">Riya &amp; Siddharth</div>
+          <div class="review-event">Pre-Wedding Film · Goa</div>
+        </div>
+      </div>
+      <span class="review-tag">Verified Client</span>
+    </div>
+    <div class="review-card reveal reveal-delay-2">
+      <div class="review-quote" aria-hidden="true">"</div>
+      <div class="review-stars" aria-label="5 stars">★★★★★</div>
+      <p class="review-text">Our baby shoot was the most beautiful experience. They made our daughter feel like a star. The portraits are heirlooms. We'll be back for every milestone.</p>
+      <div class="review-author">
+        <div class="review-avatar" aria-hidden="true">MK</div>
+        <div>
+          <div class="review-name">Meera &amp; Karthik</div>
+          <div class="review-event">Baby Story · Chennai</div>
+        </div>
+      </div>
+      <span class="review-tag">Verified Client</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<section id="stats" aria-label="SkyLeaf Studios by the numbers">
+  <span class="section-label reveal">By The Numbers</span>
+  <h2 class="section-title reveal reveal-delay-1">Five Years of <em>Stories</em></h2>
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-number" data-target="500">0<span>+</span></div>
+      <div class="stat-label">Stories Told</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <div class="stat-number" data-target="100">0<span>+</span></div>
+      <div class="stat-label">Wedding Films</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <div class="stat-number">5<span>+</span></div>
+      <div class="stat-label">Years of Experience</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <div class="stat-number">∞</div>
+      <div class="stat-label">Memories Preserved</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TRENDING REELS ── -->
+<section id="reels" aria-label="Trending Reels">
+  <span class="section-label reveal">Trending Now</span>
+  <div class="row-header reveal reveal-delay-1">
+    <h2 class="row-title">Latest <em style="font-family:var(--serif);font-style:italic;color:var(--green)">Reels</em></h2>
+    <a href="#" class="row-see-all">Follow on Instagram →</a>
+  </div>
+  <div class="reels-track reveal reveal-delay-2">
+    <article class="reel-card" data-video-url="https://www.youtube.com/embed/2g811EoVkWc">
+      <div class="reel-bg reel-bg-1"><div class="reel-art reel-art-1"></div></div>
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">Monsoon Magic</div>
+        <div class="reel-views">148K views</div>
+      </div>
+    </article>
+    <article class="reel-card" data-video-url="https://www.youtube.com/embed/5K18w6Jc0z4">
+      <div class="reel-bg reel-bg-2"><div class="reel-art reel-art-2"></div></div>
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">First Look Tears</div>
+        <div class="reel-views">92K views</div>
+      </div>
+    </article>
+    <article class="reel-card" data-video-url="https://www.youtube.com/embed/2V2k3F6wW0M">
+      <div class="reel-bg reel-bg-3"><div class="reel-art reel-art-3"></div></div>
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">Golden Hour Vows</div>
+        <div class="reel-views">211K views</div>
+      </div>
+    </article>
+    <article class="reel-card" data-video-url="https://www.youtube.com/embed/y2W6bN5N4lU">
+      <div class="reel-bg reel-bg-4"><div class="reel-art reel-art-4"></div></div>
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">Baby's First Smile</div>
+        <div class="reel-views">67K views</div>
+      </div>
+    </article>
+    <article class="reel-card" data-video-url="https://www.youtube.com/embed/BvIuGzD4dD8">
+      <div class="reel-bg reel-bg-5"><div class="reel-art reel-art-5"></div></div>
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">Mehendi Evening</div>
+        <div class="reel-views">183K views</div>
+      </div>
+    </article>
+    <article class="reel-card" data-video-url="https://www.youtube.com/embed/2g811EoVkWc">
+      <div class="reel-bg reel-bg-6"><div class="reel-art reel-art-6"></div></div>
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">The Bidaai</div>
+        <div class="reel-views">304K views</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ── BOOKING CTA ── -->
+<section id="booking" aria-label="Book Your Story">
+  <div class="booking-bg" aria-hidden="true"></div>
+  <div class="booking-glow" aria-hidden="true"></div>
+  <div class="booking-content">
+    <span class="section-label reveal" style="display:block;margin-bottom:16px;">Your Story Awaits</span>
+    <h2 class="booking-title reveal reveal-delay-1">
+      Ready to Create<br>Your <em>Story?</em>
+    </h2>
+    <p class="booking-sub reveal reveal-delay-2">
+      Not Photos. Not Videos.<br>Stories You'll Rewatch Forever.
+    </p>
+        <div class="booking-ctas reveal reveal-delay-3" style="margin-bottom: 24px;">
+      <a href="tel:+919704801234" class="btn-primary" style="padding: 10px 20px; font-size: 11px;">📞 Call Manoj</a>
+      <a href="https://wa.me/919704801234?text=Hi%20SkyLeaf%20Studios%2C%20I%27d%20love%20to%20book%20a%20shoot." class="btn-whatsapp" style="padding: 10px 20px; font-size: 11px;">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: middle; margin-right: 4px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.12 1.534 5.849L0 24l6.335-1.511A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.817 9.817 0 01-5.006-1.366l-.359-.214-3.759.896.943-3.663-.234-.375A9.818 9.818 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182S21.818 6.578 21.818 12 17.422 21.818 12 21.818z"/></svg>
+        WhatsApp
+      </a>
+      <a href="mailto:taizenkumar28@gmail.com" class="btn-ghost" style="padding: 10px 20px; font-size: 11px;">✉️ Email</a>
+    </div>
+
+    <!-- Booking Form -->
+    <form id="inquiry-form" class="inquiry-form reveal reveal-delay-3" style="margin-top: 30px; text-align: left; max-width: 620px; margin-left: auto; margin-right: auto; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); padding: 36px; border-radius: 12px; border: 1px solid rgba(0, 102, 204, 0.08); box-shadow: 0 12px 30px rgba(15,23,42,0.04);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Your Name</label>
+          <input type="text" id="form-name" required style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text);">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Phone Number</label>
+          <input type="tel" id="form-phone" required style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text);">
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Email Address</label>
+          <input type="email" id="form-email" required style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text);">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Event Type</label>
+          <select id="form-event" required style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text);">
+            <option value="Wedding Film">Wedding Photography &amp; Film</option>
+            <option value="Pre-Wedding Film">Pre-Wedding Shoot</option>
+            <option value="Baby Diary">Baby &amp; Newborn Shoot</option>
+            <option value="Family Story">Family &amp; Maternity Portrait</option>
+            <option value="Creative Production">Creative Production / Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Event Date</label>
+          <input type="date" id="form-date" required style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text);">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Location</label>
+          <input type="text" id="form-location" required placeholder="e.g., Nellore, AP" style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text);">
+        </div>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500;">Message / Custom Notes</label>
+        <textarea id="form-message" rows="3" placeholder="Tell us about your story and requirements..." style="width: 100%; padding: 12px; border: 1px solid rgba(15,23,42,0.15); border-radius: 6px; font-family: var(--sans); font-size: 14px; background: #FFF; color: var(--text); resize: none;"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; border: none; font-weight: 600;">Submit Inquiry</button>
+    </form>
+    
+    <!-- Success Message Container -->
+    <div id="form-success" style="display: none; margin-top: 40px; padding: 24px; background: rgba(40,167,69,0.08); border: 1px solid rgba(40,167,69,0.2); border-radius: 12px; max-width: 620px; margin-left: auto; margin-right: auto; text-align: center;">
+      <span style="font-size: 32px; display: block; margin-bottom: 12px;">🎉</span>
+      <h3 style="font-family: var(--serif); font-size: 24px; color: var(--text); margin-bottom: 8px;">Inquiry Submitted!</h3>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Manoj and the team will get in touch with you shortly.</p>
+      <a href="https://wa.me/919704801234?text=Hi%20SkyLeaf%20Studios%2C%20I%27d%20love%20to%20book%20a%20shoot." class="btn-whatsapp" target="_blank" style="display: inline-flex;">WhatsApp Manoj Direct</a>
+    </div>
+
+    <!-- Premium Interactive Business Card Display -->
+    <a href="business-card.jpeg" target="_blank" class="business-card-preview reveal reveal-delay-4" aria-label="View Business Card">
+      <img src="business-card.jpeg" alt="SkyLeaf Studios Business Card" style="width: 100%; height: auto; display: block;">
+    </a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        <img src="logo.png" alt="SkyLeaf Studios Logo" style="height: 48px; width: auto; object-fit: contain;">
+        <div>Sky<span>Leaf</span> Studios</div>
+      </div>
+      <p class="footer-tagline">Not Photos. Not Videos. Stories You'll Rewatch Forever.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Stories</h4>
+      <ul>
+        <li><a href="#">Wedding Films</a></li>
+        <li><a href="#">Pre-Wedding Stories</a></li>
+        <li><a href="#">Baby Diaries</a></li>
+        <li><a href="#">Family Portraits</a></li>
+        <li><a href="#">Cinematic Reels</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Studio</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">SkyLeaf Originals</a></li>
+        <li><a href="#">Behind the Camera</a></li>
+        <li><a href="#">Testimonials</a></li>
+        <li><a href="#booking">Book Now</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="https://wa.me/919704801234?text=Hi%20SkyLeaf%20Studios%2C%20I%27d%20love%20to%20book%20a%20shoot.">WhatsApp Us</a></li>
+        <li><a href="tel:+919704801234">+91 970 480 1234</a></li>
+        <li><a href="mailto:taizenkumar28@gmail.com">taizenkumar28@gmail.com</a></li>
+        <li><a href="https://maps.google.com/?q=Vedayapalem,+Nellore,+Andhra+Pradesh,+India" target="_blank">Nellore, Andhra Pradesh, India</a></li>
+                <li><a href="https://www.instagram.com/skyleaf_studios/" target="_blank">@skyleaf_studios</a></li>
+        <li><a href="admin.html" style="opacity: 0.8; font-weight: 500; color: var(--green);">⚙️ Admin Dashboard</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 <span>SkyLeaf Studios</span>. All rights reserved. Every memory deserves its own film.</p>
+    <div class="footer-social" aria-label="Social media links">
+      <a href="#" aria-label="Instagram">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <a href="#" aria-label="YouTube">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </a>
+      <a href="#" aria-label="WhatsApp">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.12 1.534 5.849L0 24l6.335-1.511A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.817 9.817 0 01-5.006-1.366l-.359-.214-3.759.896.943-3.663-.234-.375A9.818 9.818 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182S21.818 6.578 21.818 12 17.422 21.818 12 21.818z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- Cinematic Mode Toggle -->
+<button id="cin-toggle" aria-pressed="false" aria-label="Toggle Cinematic Experience">
+  <div id="cin-toggle-dot"></div>
+  <span id="cin-toggle-label">Cinematic Mode</span>
+</button>
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+/* ── LOADER ── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    document.body.style.overflow = '';
+  }, 2600);
+});
+document.body.style.overflow = 'hidden';
+
+/* ── CURSOR ── */
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+
+/* ── FLOATING PARTICLES ── */
+const pCont = document.getElementById('particles');
+for (let i = 0; i < 25; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const x = Math.random() * 100;
+  const dur = 8 + Math.random() * 16;
+  const delay = -Math.random() * dur;
+  const drift = (Math.random() - 0.5) * 120;
+  p.style.cssText = `left:${x}%;--drift:${drift}px;animation-duration:${dur}s;animation-delay:${delay}s;width:${Math.random()>0.7?2:1}px;height:${Math.random()>0.7?2:1}px;opacity:${0.3+Math.random()*0.5}`;
+  pCont.appendChild(p);
+}
+
+/* ── SCROLL REVEAL ── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.12 });
+
+function observeReveals() {
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => io.observe(el));
+}
+observeReveals();
+
+/* ── NAV SCROLL ── */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ── STATS COUNTER ── */
+const statNums = document.querySelectorAll('.stat-number[data-target]');
+const countIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const target = parseInt(el.dataset.target);
+    const suffix = el.innerHTML.match(/<span>(.*?)<\/span>/)[1];
+    let current = 0;
+    const step = Math.ceil(target / 60);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.innerHTML = current + `<span>${suffix}</span>`;
+      if (current >= target) clearInterval(timer);
+    }, 25);
+    countIO.unobserve(el);
+  });
+}, { threshold: 0.5 });
+statNums.forEach(el => countIO.observe(el));
+
+/* ── MOBILE NAV ── */
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobile-nav');
+const mobileClose = document.getElementById('mobile-nav-close');
+hamburger.addEventListener('click', () => {
+  mobileNav.classList.add('open');
+  mobileNav.setAttribute('aria-hidden','false');
+  hamburger.setAttribute('aria-expanded','true');
+});
+mobileClose.addEventListener('click', () => {
+  mobileNav.classList.remove('open');
+  mobileNav.setAttribute('aria-hidden','true');
+  hamburger.setAttribute('aria-expanded','false');
+});
+mobileNav.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    mobileNav.setAttribute('aria-hidden','true');
+  });
+});
+
+/* ── CINEMATIC MODE ── */
+const cinBtn = document.getElementById('cin-toggle');
+let cinActive = false;
+let audioCtx = null;
+cinBtn.addEventListener('click', () => {
+  cinActive = !cinActive;
+  cinBtn.classList.toggle('active', cinActive);
+  cinBtn.setAttribute('aria-pressed', String(cinActive));
+  if (cinActive) {
+    document.getElementById('grain').style.opacity = '0.07';
+    document.querySelectorAll('section').forEach(s => {
+      s.style.transition = 'filter 1s ease';
+    });
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = 60;
+        gain.gain.value = 0.04;
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+      }
+    } catch(e) {}
+  } else {
+    document.getElementById('grain').style.opacity = '0.04';
+  }
+});
+
+/* ── SMOOTH ANCHOR SCROLL ── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+
+/* ── PARALLAX HERO ── */
+window.addEventListener('scroll', () => {
+  const hero = document.getElementById('hero');
+  const scrolled = window.scrollY;
+  if (scrolled < window.innerHeight) {
+    const content = hero.querySelector('.hero-content');
+    if (content) content.style.transform = `translateY(${scrolled * 0.25}px)`;
+  }
+}, { passive: true });
+
+/* ── VIDEO PLAYER MODAL ── */
+const videoModal = document.getElementById('video-modal');
+const modalClose = document.getElementById('modal-close');
+let player;
+
+// Helper to extract YouTube video ID
+function getYouTubeId(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return match[2];
+  }
+  if (url.length === 11) {
+    return url;
+  }
+  return null;
+}
+
+// Function to dynamically load and play a video
+function playVideo(videoUrl) {
+  if (!videoUrl) return;
+  const ytId = getYouTubeId(videoUrl);
+  
+  if (player) {
+    player.destroy();
+    player = null;
+  }
+  
+  const wrapper = document.querySelector('.video-wrapper');
+  if (wrapper) {
+    if (ytId) {
+      wrapper.innerHTML = `
+        <div id="player" class="plyr__video-embed">
+          <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=0&enablejsapi=1&origin=${window.location.origin}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+      `;
+      player = new Plyr('#player', {
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+        youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+      });
+    } else {
+      wrapper.innerHTML = `
+        <video id="player" playsinline controls autoplay>
+          <source src="${videoUrl}" type="video/mp4">
+        </video>
+      `;
+      player = new Plyr('#player', {
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
+      });
+    }
+    
+    videoModal.classList.add('open');
+    videoModal.setAttribute('aria-hidden', 'false');
+    
+    // Play after ready
+    player.once('ready', () => {
+      player.play().catch(err => console.log("Autoplay blocked:", err));
+    });
+  }
+}
+
+// Find all elements with data-video-url
+const playElements = document.querySelectorAll('[data-video-url]');
+playElements.forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    const videoUrl = el.getAttribute('data-video-url');
+    playVideo(videoUrl);
+  });
+});
+
+// Close modal
+const closeModalFunc = () => {
+  videoModal.classList.remove('open');
+  videoModal.setAttribute('aria-hidden', 'true');
+  if (player) {
+    player.destroy();
+    player = null;
+  }
+  const wrapper = document.querySelector('.video-wrapper');
+  if (wrapper) {
+    wrapper.innerHTML = '';
+  }
+};
+
+modalClose.addEventListener('click', closeModalFunc);
+videoModal.addEventListener('click', (e) => {
+  if (e.target === videoModal) {
+    closeModalFunc();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && videoModal.classList.contains('open')) {
+    closeModalFunc();
+  }
+});
+
+/* ── DYNAMIC CONTENT & STORAGE SYSTEM ── */
+const defaultStories = [
+  { id: 1, title: "Forever Begins Here", category: "Wedding Film", location: "Nellore", year: "2024", image: "IMG_5711.PNG", video: "https://www.youtube.com/embed/5K18w6Jc0z4" },
+  { id: 2, title: "Golden Hour", category: "Pre-Wedding Film", location: "Goa", year: "2024", image: "IMG_5709.PNG", video: "https://www.youtube.com/embed/2V2k3F6wW0M" },
+  { id: 3, title: "Journey to Parenthood", category: "Baby Diary", location: "Hyderabad", year: "2024", image: "IMG_6060.JPG.jpeg", video: "https://www.youtube.com/embed/y2W6bN5N4lU" },
+  { id: 4, title: "The Mehta Chronicles", category: "Family Story", location: "Mumbai", year: "2024", image: "IMG_6060.JPG.jpeg", video: "https://www.youtube.com/embed/BvIuGzD4dD8" },
+  { id: 5, title: "Raat Bhar Jaag", category: "Wedding Film", location: "Jaipur", year: "2023", image: "IMG_5708.PNG", video: "https://www.youtube.com/embed/2g811EoVkWc" }
+];
+
+const defaultFeatured = {
+  title: "Monsoon Love Story",
+  emTitle: "Love",
+  location: "Udaipur, Rajasthan",
+  year: "2024",
+  description: "Amid monsoon mists and ancient havelis, two souls found their forever. A three-day wedding celebration that reads like a love poem — and lives on screen like a film.",
+  image: "IMG_5708.PNG",
+  video: "https://www.youtube.com/embed/2g811EoVkWc"
+};
+
+// Initialize Storage
+if (!localStorage.getItem('skyleaf_stories')) {
+  localStorage.setItem('skyleaf_stories', JSON.stringify(defaultStories));
+}
+if (!localStorage.getItem('skyleaf_featured')) {
+  localStorage.setItem('skyleaf_featured', JSON.stringify(defaultFeatured));
+}
+if (!localStorage.getItem('skyleaf_leads')) {
+  localStorage.setItem('skyleaf_leads', JSON.stringify([]));
+}
+
+// Load Featured Story
+function loadFeaturedStory() {
+  const featured = JSON.parse(localStorage.getItem('skyleaf_featured'));
+  if (!featured) return;
+  
+  const titleEl = document.getElementById('featured-story-title');
+  const descEl = document.getElementById('featured-story-desc');
+  const bgEl = document.getElementById('featured-banner-bg');
+  const metaEl = document.getElementById('featured-meta-info');
+  const playBtn = document.getElementById('featured-play-btn');
+  
+  if (titleEl) titleEl.innerHTML = featured.title.replace('Monsoon Love Story', `Monsoon <em>${featured.emTitle || 'Love'}</em><br>Story`).replace('Story', 'Story');
+  if (descEl) descEl.textContent = featured.description;
+  if (bgEl) bgEl.style.background = `url('${featured.image || 'IMG_5708.PNG'}') center/cover no-repeat`;
+  if (playBtn) playBtn.setAttribute('data-video-url', featured.video);
+  
+  if (metaEl) {
+    metaEl.innerHTML = `
+      <span>Wedding Highlight</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span>${featured.location}</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span>${featured.year}</span>
+    `;
+  }
+}
+
+// Render Stories to Track (Continue Watching & Originals)
+function renderStories() {
+  const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
+  
+  // Render Continue Watching Track
+  const track = document.getElementById('continue-watching-track');
+  if (track) {
+    track.innerHTML = '';
+    stories.forEach(story => {
+      const card = document.createElement('article');
+      card.className = 'movie-card';
+      card.setAttribute('data-video-url', story.video);
+      
+      card.innerHTML = `
+        <div class="movie-card-bg" style="background: url('${story.image || 'IMG_5711.PNG'}') center/cover no-repeat;"></div>
+        <div class="movie-card-gradient"></div>
+        <div class="card-play" aria-label="Play trailer">▶</div>
+        <div class="movie-card-info">
+          <div class="card-category">${story.category}</div>
+          <h3 class="card-title">${story.title}</h3>
+          <p class="card-meta">${story.location} · ${story.year}</p>
+        </div>
+      `;
+      track.appendChild(card);
+    });
+  }
+
+  // Render Originals Grid
+  const grid = document.getElementById('originals-grid-container');
+  if (grid) {
+    grid.innerHTML = '';
+    
+    stories.slice(0, 4).forEach((story, idx) => {
+      const card = document.createElement('article');
+      card.className = `original-card ${idx === 0 ? 'featured-orig' : ''} reveal`;
+      card.setAttribute('data-video-url', story.video);
+      
+      card.innerHTML = `
+        <div class="orig-bg" style="background: url('${story.image || 'IMG_5708.PNG'}') center/cover no-repeat;"></div>
+        <div class="orig-gradient"></div>
+        <div class="orig-badge">SkyLeaf Original</div>
+        <div class="orig-info">
+          <h3 class="orig-title">${story.title}</h3>
+          <p class="orig-desc">${story.location} · ${story.year}</p>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+  
+  bindDynamicPlayEvents();
+  if (typeof observeReveals === 'function') {
+    observeReveals();
+  }
+}
+
+function bindDynamicPlayEvents() {
+  const playElements = document.querySelectorAll('[data-video-url]');
+  playElements.forEach(el => {
+    // Remove old listeners to prevent duplicates
+    const newEl = el.cloneNode(true);
+    el.parentNode.replaceChild(newEl, el);
+    
+    newEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      const videoUrl = newEl.getAttribute('data-video-url');
+      playVideo(videoUrl);
+    });
+  });
+}
+
+// Form Submission Event
+const inquiryForm = document.getElementById('inquiry-form');
+const successBox = document.getElementById('form-success');
+if (inquiryForm) {
+  inquiryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const lead = {
+      id: Date.now(),
+      name: document.getElementById('form-name').value,
+      phone: document.getElementById('form-phone').value,
+      email: document.getElementById('form-email').value,
+      event: document.getElementById('form-event').value,
+      date: document.getElementById('form-date').value,
+      location: document.getElementById('form-location').value,
+      message: document.getElementById('form-message').value,
+      timestamp: new Date().toLocaleString()
+    };
+    
+    const leads = JSON.parse(localStorage.getItem('skyleaf_leads')) || [];
+    leads.unshift(lead); // add newest lead at top
+    localStorage.setItem('skyleaf_leads', JSON.stringify(leads));
+    
+    // Hide form, show success box
+    inquiryForm.style.display = 'none';
+    if (successBox) successBox.style.display = 'block';
+  });
+}
+
+// Initialize dynamic rendering
+document.addEventListener('DOMContentLoaded', () => {
+  loadFeaturedStory();
+  renderStories();
+});
+
+/* ── LIGHTBOX MODAL SYSTEM ── */
+const lightboxModal = document.getElementById('lightbox-modal');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxCaption = document.getElementById('lightbox-caption');
+
+function openLightbox(imgSrc, captionText) {
+  lightboxImg.src = imgSrc;
+  lightboxCaption.textContent = captionText;
+  lightboxModal.classList.add('open');
+  lightboxModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeLightbox() {
+  lightboxModal.classList.remove('open');
+  lightboxModal.setAttribute('aria-hidden', 'true');
+  setTimeout(() => {
+    lightboxImg.src = "";
+    lightboxCaption.textContent = "";
+  }, 400);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && lightboxModal.classList.contains('open')) {
+    closeLightbox();
+  }
+});
+</script>
+</body>
+</html>
