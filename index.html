@@ -1172,6 +1172,93 @@
   .video-wrapper .plyr {
     height: 100%;
   }
+
+  /* ── ALBUM SLIDESHOW MODAL ── */
+  .album-modal {
+    position: fixed; inset: 0; z-index: 10001;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s;
+  }
+  .album-modal.open {
+    opacity: 1; visibility: visible;
+  }
+  .album-modal-container {
+    width: 90%; max-width: 1000px;
+    height: 85vh;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    transform: scale(0.92);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .album-modal.open .album-modal-container {
+    transform: scale(1);
+  }
+  .album-viewer-wrap {
+    flex-grow: 1;
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .album-img {
+    max-width: 100%; max-height: 60vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .album-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; width: 48px; height: 48px; border-radius: 50%;
+    font-size: 20px; font-weight: 300; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, transform 0.3s;
+    z-index: 10;
+  }
+  .album-btn:hover {
+    background: var(--blue);
+    transform: translateY(-50%) scale(1.08);
+  }
+  .album-btn-prev { left: 16px; }
+  .album-btn-next { right: 16px; }
+  
+  .album-info-bar {
+    width: 100%; text-align: center; color: #fff; margin-top: 12px;
+  }
+  .album-caption {
+    font-family: var(--serif); font-size: 22px; font-weight: 300; margin-bottom: 4px;
+  }
+  .album-counter {
+    font-size: 11px; letter-spacing: 0.15em; color: var(--green); text-transform: uppercase;
+  }
+  .album-thumbnails-bar {
+    width: 100%; display: flex; gap: 8px; justify-content: center; overflow-x: auto;
+    padding: 12px 0; margin-top: 16px;
+    scrollbar-width: none;
+  }
+  .album-thumbnails-bar::-webkit-scrollbar { display: none; }
+  .album-thumb {
+    width: 48px; height: 36px; object-fit: cover; border-radius: 4px;
+    opacity: 0.4; cursor: pointer; border: 1px solid transparent;
+    transition: opacity 0.3s, border-color 0.3s;
+  }
+  .album-thumb.active {
+    opacity: 1; border-color: var(--blue);
+  }
+  .album-close {
+    position: absolute; top: -32px; right: 0;
+    background: none; border: none; color: #fff;
+    font-size: 36px; font-weight: 200; cursor: pointer;
+    transition: color 0.3s;
+  }
+  .album-close:hover { color: var(--blue); }
 </style>
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 </head>
@@ -1185,6 +1272,25 @@
       <div id="player" class="plyr__video-embed">
         <iframe src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Album Slideshow Modal -->
+<div id="album-modal" class="album-modal" aria-hidden="true" role="dialog">
+  <div class="album-modal-container">
+    <button class="album-close" id="album-close-btn" onclick="closeAlbumModal()">&times;</button>
+    <div class="album-viewer-wrap">
+      <button class="album-btn album-btn-prev" onclick="prevAlbumImage()">&#10094;</button>
+      <img id="album-active-img" src="" class="album-img" alt="Album Image">
+      <button class="album-btn album-btn-next" onclick="nextAlbumImage()">&#10095;</button>
+    </div>
+    <div class="album-info-bar">
+      <div id="album-active-caption" class="album-caption"></div>
+      <div id="album-active-counter" class="album-counter"></div>
+    </div>
+    <div id="album-thumbnails" class="album-thumbnails-bar">
+      <!-- Thumbnails dynamic -->
     </div>
   </div>
 </div>
@@ -1929,16 +2035,17 @@ document.addEventListener('keydown', (e) => {
 
 /* ── DYNAMIC CONTENT & STORAGE SYSTEM ── */
 const defaultStories = [
-  { id: 1, title: "Forever Begins Here", category: "Wedding Film", location: "Nellore", year: "2024", image: "IMG_5711.PNG", video: "https://www.youtube.com/embed/5K18w6Jc0z4" },
-  { id: 2, title: "Golden Hour", category: "Pre-Wedding Film", location: "Goa", year: "2024", image: "IMG_5709.PNG", video: "https://www.youtube.com/embed/2V2k3F6wW0M" },
-  { id: 3, title: "Journey to Parenthood", category: "Baby Diary", location: "Hyderabad", year: "2024", image: "IMG_6060.JPG.jpeg", video: "https://www.youtube.com/embed/y2W6bN5N4lU" },
-  { id: 4, title: "The Mehta Chronicles", category: "Family Story", location: "Mumbai", year: "2024", image: "IMG_6060.JPG.jpeg", video: "https://www.youtube.com/embed/BvIuGzD4dD8" },
-  { id: 5, title: "Raat Bhar Jaag", category: "Wedding Film", location: "Jaipur", year: "2023", image: "IMG_5708.PNG", video: "https://www.youtube.com/embed/2g811EoVkWc" }
+  { id: 1, title: "Forever Begins Here", category: "Wedding Film", type: "video", location: "Nellore", year: "2024", image: "IMG_5711.PNG", video: "https://www.youtube.com/embed/5K18w6Jc0z4" },
+  { id: 2, title: "Golden Hour Series", category: "Pre-Wedding Portfolio", type: "photo", location: "Goa", year: "2024", image: "IMG_5709.PNG", album: ["IMG_5708.PNG", "IMG_5711.PNG", "IMG_5709.PNG"] },
+  { id: 3, title: "Journey to Parenthood", category: "Baby Diary Portraits", type: "photo", location: "Hyderabad", year: "2024", image: "IMG_6060.JPG.jpeg", album: ["IMG_6060.JPG.jpeg", "IMG_5708.PNG", "IMG_5711.PNG"] },
+  { id: 4, title: "The Mehta Chronicles", category: "Family Story", type: "video", location: "Mumbai", year: "2024", image: "IMG_6060.JPG.jpeg", video: "https://www.youtube.com/embed/BvIuGzD4dD8" },
+  { id: 5, title: "Raat Bhar Jaag", category: "Wedding Film", type: "video", location: "Jaipur", year: "2023", image: "IMG_5708.PNG", video: "https://www.youtube.com/embed/2g811EoVkWc" }
 ];
 
 const defaultFeatured = {
   title: "Monsoon Love Story",
   emTitle: "Love",
+  type: "video",
   location: "Udaipur, Rajasthan",
   year: "2024",
   description: "Amid monsoon mists and ancient havelis, two souls found their forever. A three-day wedding celebration that reads like a love poem — and lives on screen like a film.",
@@ -1981,7 +2088,20 @@ function loadFeaturedStory() {
   if (titleEl) titleEl.innerHTML = featured.title.replace('Monsoon Love Story', `Monsoon <em>${featured.emTitle || 'Love'}</em><br>Story`).replace('Story', 'Story');
   if (descEl) descEl.textContent = featured.description;
   if (bgEl) bgEl.style.background = `url('${featured.image || 'IMG_5708.PNG'}') center/cover no-repeat`;
-  if (playBtn) playBtn.setAttribute('data-video-url', featured.video);
+  if (playBtn) {
+    if (featured.type === 'photo') {
+      playBtn.innerHTML = '📷 View Photo Album';
+      playBtn.removeAttribute('data-video-url');
+      playBtn.onclick = (e) => {
+        e.preventDefault();
+        openAlbumModal(featured.album || [], featured.title);
+      };
+    } else {
+      playBtn.innerHTML = '▶ Watch Film';
+      playBtn.setAttribute('data-video-url', featured.video);
+      playBtn.onclick = null;
+    }
+  }
   
   if (metaEl) {
     metaEl.innerHTML = `
@@ -2005,12 +2125,13 @@ function renderStories() {
     stories.forEach(story => {
       const card = document.createElement('article');
       card.className = 'movie-card';
-      card.setAttribute('data-video-url', story.video);
+      card.setAttribute('data-story-id', story.id);
       
+      const isPhoto = story.type === 'photo';
       card.innerHTML = `
         <div class="movie-card-bg" style="background: url('${story.image || 'IMG_5711.PNG'}') center/cover no-repeat;"></div>
         <div class="movie-card-gradient"></div>
-        <div class="card-play" aria-label="Play trailer">▶</div>
+        <div class="card-play" aria-label="${isPhoto ? 'View album' : 'Play trailer'}">${isPhoto ? '📷' : '▶'}</div>
         <div class="movie-card-info">
           <div class="card-category">${story.category}</div>
           <h3 class="card-title">${story.title}</h3>
@@ -2029,12 +2150,12 @@ function renderStories() {
     stories.slice(0, 4).forEach((story, idx) => {
       const card = document.createElement('article');
       card.className = `original-card ${idx === 0 ? 'featured-orig' : ''} reveal`;
-      card.setAttribute('data-video-url', story.video);
+      card.setAttribute('data-story-id', story.id);
       
       card.innerHTML = `
         <div class="orig-bg" style="background: url('${story.image || 'IMG_5708.PNG'}') center/cover no-repeat;"></div>
         <div class="orig-gradient"></div>
-        <div class="orig-badge">SkyLeaf Original</div>
+        <div class="orig-badge">${story.type === 'photo' ? '📷 Photo Story' : 'SkyLeaf Original'}</div>
         <div class="orig-info">
           <h3 class="orig-title">${story.title}</h3>
           <p class="orig-desc">${story.location} · ${story.year}</p>
@@ -2077,13 +2198,127 @@ function renderGallery() {
   }
 }
 
+/* ── ALBUM SLIDESHOW MODAL SYSTEM ── */
+const albumModal = document.getElementById('album-modal');
+const albumImg = document.getElementById('album-active-img');
+const albumCaption = document.getElementById('album-active-caption');
+const albumCounter = document.getElementById('album-active-counter');
+const albumThumbnails = document.getElementById('album-thumbnails');
+
+let currentAlbumImages = [];
+let currentAlbumTitle = '';
+let currentAlbumIdx = 0;
+
+function openAlbumModal(images, title) {
+  if (!images || images.length === 0) return;
+  currentAlbumImages = images;
+  currentAlbumTitle = title;
+  currentAlbumIdx = 0;
+  
+  albumModal.classList.add('open');
+  albumModal.setAttribute('aria-hidden', 'false');
+  
+  // Render Thumbnails
+  albumThumbnails.innerHTML = '';
+  images.forEach((imgSrc, idx) => {
+    const thumb = document.createElement('img');
+    thumb.className = 'album-thumb';
+    thumb.src = imgSrc;
+    thumb.alt = `Thumbnail ${idx+1}`;
+    thumb.onclick = () => showAlbumImage(idx);
+    albumThumbnails.appendChild(thumb);
+  });
+  
+  showAlbumImage(0);
+}
+
+function closeAlbumModal() {
+  albumModal.classList.remove('open');
+  albumModal.setAttribute('aria-hidden', 'true');
+  setTimeout(() => {
+    albumImg.src = '';
+    albumCaption.textContent = '';
+    albumCounter.textContent = '';
+    albumThumbnails.innerHTML = '';
+  }, 400);
+}
+
+function showAlbumImage(idx) {
+  if (idx < 0 || idx >= currentAlbumImages.length) return;
+  currentAlbumIdx = idx;
+  
+  albumImg.style.opacity = '0';
+  albumImg.style.transform = 'scale(0.98)';
+  
+  setTimeout(() => {
+    albumImg.src = currentAlbumImages[idx];
+    albumCaption.textContent = currentAlbumTitle;
+    albumCounter.textContent = `Photo ${idx + 1} of ${currentAlbumImages.length}`;
+    
+    const thumbs = albumThumbnails.querySelectorAll('.album-thumb');
+    thumbs.forEach((thumb, i) => {
+      thumb.classList.toggle('active', i === idx);
+    });
+    
+    const activeThumb = thumbs[idx];
+    if (activeThumb) {
+      activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    
+    albumImg.style.opacity = '1';
+    albumImg.style.transform = 'scale(1)';
+  }, 150);
+}
+
+function nextAlbumImage() {
+  let nextIdx = currentAlbumIdx + 1;
+  if (nextIdx >= currentAlbumImages.length) nextIdx = 0;
+  showAlbumImage(nextIdx);
+}
+
+function prevAlbumImage() {
+  let prevIdx = currentAlbumIdx - 1;
+  if (prevIdx < 0) prevIdx = currentAlbumImages.length - 1;
+  showAlbumImage(prevIdx);
+}
+
+// Keyboard triggers for album navigation
+document.addEventListener('keydown', (e) => {
+  if (albumModal.classList.contains('open')) {
+    if (e.key === 'ArrowRight') nextAlbumImage();
+    if (e.key === 'ArrowLeft') prevAlbumImage();
+    if (e.key === 'Escape') closeAlbumModal();
+  }
+});
+
+function handleCardClick(storyId) {
+  const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
+  const story = stories.find(s => s.id == storyId);
+  if (!story) return;
+
+  if (story.type === 'photo') {
+    openAlbumModal(story.album || [], story.title);
+  } else {
+    playVideo(story.video);
+  }
+}
+
 function bindDynamicPlayEvents() {
-  const playElements = document.querySelectorAll('[data-video-url]');
-  playElements.forEach(el => {
-    // Remove old listeners to prevent duplicates
+  const storyElements = document.querySelectorAll('[data-story-id]');
+  storyElements.forEach(el => {
     const newEl = el.cloneNode(true);
     el.parentNode.replaceChild(newEl, el);
-    
+    newEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      const storyId = newEl.getAttribute('data-story-id');
+      handleCardClick(storyId);
+    });
+  });
+
+  const videoElements = document.querySelectorAll('[data-video-url]:not([data-story-id])');
+  videoElements.forEach(el => {
+    const newEl = el.cloneNode(true);
+    el.parentNode.replaceChild(newEl, el);
     newEl.addEventListener('click', (e) => {
       e.preventDefault();
       const videoUrl = newEl.getAttribute('data-video-url');

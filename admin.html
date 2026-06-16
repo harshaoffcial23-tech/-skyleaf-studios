@@ -309,6 +309,54 @@
       gap: 8px;
       margin-top: auto;
     }
+
+    /* Album Thumbnail Uploader Styles */
+    .album-thumbnails-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+      padding: 16px;
+      background: var(--bg);
+      border: 1px dashed rgba(15,23,42,0.15);
+      border-radius: 8px;
+      min-height: 80px;
+      width: 100%;
+    }
+    .album-preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .album-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .album-preview-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(211, 47, 47, 0.9);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .album-preview-item .remove-btn:hover {
+      background: #b22222;
+    }
   </style>
 </head>
 <body>
@@ -395,6 +443,13 @@
               </div>
               <div class="form-row">
                 <div class="form-group">
+                  <label>Story Type</label>
+                  <select id="story-type" onchange="toggleStoryTypeFields()">
+                    <option value="video">Video Film</option>
+                    <option value="photo">Photography Album</option>
+                  </select>
+                </div>
+                <div class="form-group">
                   <label>Cover Image Source</label>
                   <div style="display: flex; gap: 8px; align-items: center;">
                     <input type="text" id="story-image" required placeholder="Image URL or local file path" style="flex: 1;">
@@ -405,9 +460,31 @@
                   </div>
                   <div class="upload-progress" id="story-image-progress" style="display: none; font-size: 11px; margin-top: 4px; color: var(--green);">Compressing image...</div>
                 </div>
-                <div class="form-group">
+              </div>
+
+              <!-- Video Fields -->
+              <div id="video-fields-container" class="form-row">
+                <div class="form-group" style="grid-column: span 2;">
                   <label>YouTube Embed Link</label>
                   <input type="text" id="story-video" required placeholder="e.g., https://www.youtube.com/embed/5K18w6Jc0z4">
+                </div>
+              </div>
+
+              <!-- Photo Fields -->
+              <div id="photo-fields-container" style="display: none; margin-bottom: 20px;">
+                <div class="form-group">
+                  <label>Album Photos (Select multiple)</label>
+                  <div style="display: flex; gap: 12px; align-items: center; margin-top: 6px;">
+                    <label class="btn-submit" style="padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; margin-bottom: 0;">
+                      Add Photos
+                      <input type="file" id="story-album-files" multiple accept="image/*" onchange="handleAlbumUpload(event)" style="display: none;">
+                    </label>
+                    <span id="album-upload-status" style="font-size: 13px; color: var(--text-muted);">0 photos added</span>
+                  </div>
+                  <div class="upload-progress" id="album-progress" style="display: none; font-size: 11px; margin-top: 6px; color: var(--green);">Compressing selected images...</div>
+                  <div class="album-thumbnails-preview" id="album-preview-container">
+                    <!-- Dynamic photo thumbnails preview with remove buttons -->
+                  </div>
                 </div>
               </div>
               <div style="display: flex; gap: 10px;">
@@ -605,6 +682,8 @@
       loadStoriesGrid();
     }
 
+    let uploadedAlbum = [];
+
     // Load Tab 1 Stories
     function loadStoriesGrid() {
       const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
@@ -614,11 +693,17 @@
       stories.forEach(story => {
         const card = document.createElement('div');
         card.className = 'admin-story-card';
+        const isPhoto = story.type === 'photo';
         card.innerHTML = `
           <img class="admin-story-img" src="${story.image || 'IMG_5711.PNG'}" alt="">
           <div class="admin-story-details">
             <div class="admin-story-title">${story.title}</div>
-            <div class="admin-story-meta">${story.category} &middot; ${story.location} &middot; ${story.year}</div>
+            <div class="admin-story-meta">
+              <span style="display:inline-block; padding: 2px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; border-radius: 4px; background: ${isPhoto ? 'rgba(40,167,69,0.1)' : 'rgba(0,102,204,0.1)'}; color: ${isPhoto ? 'var(--green)' : 'var(--blue)'}; margin-right: 6px;">
+                ${isPhoto ? '📷 Photo' : '🎥 Video'}
+              </span>
+              ${story.category} &middot; ${story.location} &middot; ${story.year}
+            </div>
           </div>
           <div style="display: flex; gap: 8px;">
             <button class="logout-btn" onclick="editStory(${story.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
@@ -634,6 +719,11 @@
       document.getElementById('form-action-title').textContent = 'Add New Story';
       document.getElementById('edit-story-id').value = '';
       document.getElementById('story-form').reset();
+      
+      uploadedAlbum = [];
+      renderAlbumPreview();
+      toggleStoryTypeFields();
+
       document.getElementById('story-form-card').style.display = 'block';
     }
     
@@ -641,19 +731,104 @@
       document.getElementById('story-form-card').style.display = 'none';
     }
 
+    function toggleStoryTypeFields() {
+      const type = document.getElementById('story-type').value;
+      const videoContainer = document.getElementById('video-fields-container');
+      const photoContainer = document.getElementById('photo-fields-container');
+      const videoInput = document.getElementById('story-video');
+
+      if (type === 'photo') {
+        videoContainer.style.display = 'none';
+        photoContainer.style.display = 'block';
+        videoInput.removeAttribute('required');
+      } else {
+        videoContainer.style.display = 'grid';
+        photoContainer.style.display = 'none';
+        videoInput.setAttribute('required', 'required');
+      }
+    }
+
+    function handleAlbumUpload(event) {
+      const files = Array.from(event.target.files);
+      if (files.length === 0) return;
+
+      const progressEl = document.getElementById('album-progress');
+      if (progressEl) progressEl.style.display = 'block';
+
+      let processedCount = 0;
+      const totalFiles = files.length;
+
+      files.forEach(file => {
+        compressImage(file, 1000, 1000, 0.7, (base64Str) => {
+          processedCount++;
+          if (base64Str) {
+            uploadedAlbum.push(base64Str);
+          }
+
+          if (processedCount === totalFiles) {
+            if (progressEl) progressEl.style.display = 'none';
+            renderAlbumPreview();
+            event.target.value = ''; // Reset uploader input
+          }
+        });
+      });
+    }
+
+    function renderAlbumPreview() {
+      const container = document.getElementById('album-preview-container');
+      const statusEl = document.getElementById('album-upload-status');
+      if (!container) return;
+
+      container.innerHTML = '';
+      
+      if (statusEl) {
+        statusEl.textContent = `${uploadedAlbum.length} photo${uploadedAlbum.length === 1 ? '' : 's'} added`;
+      }
+
+      uploadedAlbum.forEach((imgSrc, idx) => {
+        const item = document.createElement('div');
+        item.className = 'album-preview-item';
+        
+        const img = document.createElement('img');
+        img.src = imgSrc;
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.onclick = () => {
+          uploadedAlbum.splice(idx, 1);
+          renderAlbumPreview();
+        };
+
+        item.appendChild(img);
+        item.appendChild(removeBtn);
+        container.appendChild(item);
+      });
+    }
+
     function saveStory(e) {
       e.preventDefault();
       const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
       const editId = document.getElementById('edit-story-id').value;
       
+      const storyType = document.getElementById('story-type').value;
       const story = {
         title: document.getElementById('story-title').value,
         category: document.getElementById('story-category').value,
         location: document.getElementById('story-location').value,
         year: document.getElementById('story-year').value,
         image: document.getElementById('story-image').value,
-        video: document.getElementById('story-video').value
+        type: storyType
       };
+
+      if (storyType === 'photo') {
+        story.album = uploadedAlbum;
+        story.video = '';
+      } else {
+        story.video = document.getElementById('story-video').value;
+        story.album = [];
+      }
       
       if (editId) {
         // Edit existing
@@ -685,7 +860,20 @@
       document.getElementById('story-location').value = story.location;
       document.getElementById('story-year').value = story.year;
       document.getElementById('story-image').value = story.image;
-      document.getElementById('story-video').value = story.video;
+      
+      const storyType = story.type || 'video';
+      document.getElementById('story-type').value = storyType;
+      
+      if (storyType === 'photo') {
+        uploadedAlbum = Array.isArray(story.album) ? [...story.album] : [];
+        document.getElementById('story-video').value = '';
+      } else {
+        uploadedAlbum = [];
+        document.getElementById('story-video').value = story.video || '';
+      }
+      
+      renderAlbumPreview();
+      toggleStoryTypeFields();
       
       document.getElementById('story-form-card').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
