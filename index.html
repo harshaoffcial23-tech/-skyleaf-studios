@@ -1593,60 +1593,7 @@
     <a href="#" class="row-see-all">Follow on Instagram →</a>
   </div>
   <div class="reels-track reveal reveal-delay-2">
-    <article class="reel-card" data-video-url="https://www.youtube.com/embed/2g811EoVkWc">
-      <div class="reel-bg reel-bg-1"><div class="reel-art reel-art-1"></div></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play" aria-label="Play reel">▶</div>
-      <div class="reel-info">
-        <div class="reel-title">Monsoon Magic</div>
-        <div class="reel-views">148K views</div>
-      </div>
-    </article>
-    <article class="reel-card" data-video-url="https://www.youtube.com/embed/5K18w6Jc0z4">
-      <div class="reel-bg reel-bg-2"><div class="reel-art reel-art-2"></div></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play" aria-label="Play reel">▶</div>
-      <div class="reel-info">
-        <div class="reel-title">First Look Tears</div>
-        <div class="reel-views">92K views</div>
-      </div>
-    </article>
-    <article class="reel-card" data-video-url="https://www.youtube.com/embed/2V2k3F6wW0M">
-      <div class="reel-bg reel-bg-3"><div class="reel-art reel-art-3"></div></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play" aria-label="Play reel">▶</div>
-      <div class="reel-info">
-        <div class="reel-title">Golden Hour Vows</div>
-        <div class="reel-views">211K views</div>
-      </div>
-    </article>
-    <article class="reel-card" data-video-url="https://www.youtube.com/embed/y2W6bN5N4lU">
-      <div class="reel-bg reel-bg-4"><div class="reel-art reel-art-4"></div></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play" aria-label="Play reel">▶</div>
-      <div class="reel-info">
-        <div class="reel-title">Baby's First Smile</div>
-        <div class="reel-views">67K views</div>
-      </div>
-    </article>
-    <article class="reel-card" data-video-url="https://www.youtube.com/embed/BvIuGzD4dD8">
-      <div class="reel-bg reel-bg-5"><div class="reel-art reel-art-5"></div></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play" aria-label="Play reel">▶</div>
-      <div class="reel-info">
-        <div class="reel-title">Mehendi Evening</div>
-        <div class="reel-views">183K views</div>
-      </div>
-    </article>
-    <article class="reel-card" data-video-url="https://www.youtube.com/embed/2g811EoVkWc">
-      <div class="reel-bg reel-bg-6"><div class="reel-art reel-art-6"></div></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play" aria-label="Play reel">▶</div>
-      <div class="reel-info">
-        <div class="reel-title">The Bidaai</div>
-        <div class="reel-views">304K views</div>
-      </div>
-    </article>
+    <!-- Dynamic Reels will render here -->
   </div>
 </section>
 
@@ -2061,6 +2008,15 @@ const defaultGallery = [
   { id: 4, title: "Moments in Bloom", tag: "Portrait Session", image: "IMG_6060.JPG.jpeg" }
 ];
 
+const defaultReels = [
+  { id: 1, title: "Monsoon Magic", video: "https://www.youtube.com/embed/2g811EoVkWc", views: "148K views", image: "" },
+  { id: 2, title: "First Look Tears", video: "https://www.youtube.com/embed/5K18w6Jc0z4", views: "92K views", image: "" },
+  { id: 3, title: "Golden Hour Vows", video: "https://www.youtube.com/embed/2V2k3F6wW0M", views: "211K views", image: "" },
+  { id: 4, title: "Baby's First Smile", video: "https://www.youtube.com/embed/y2W6bN5N4lU", views: "67K views", image: "" },
+  { id: 5, title: "Mehendi Evening", video: "https://www.youtube.com/embed/BvIuGzD4dD8", views: "183K views", image: "" },
+  { id: 6, title: "The Bidaai", video: "https://www.youtube.com/embed/2g811EoVkWc", views: "304K views", image: "" }
+];
+
 // Initialize Storage
 if (!localStorage.getItem('skyleaf_stories')) {
   localStorage.setItem('skyleaf_stories', JSON.stringify(defaultStories));
@@ -2070,6 +2026,9 @@ if (!localStorage.getItem('skyleaf_featured')) {
 }
 if (!localStorage.getItem('skyleaf_gallery')) {
   localStorage.setItem('skyleaf_gallery', JSON.stringify(defaultGallery));
+}
+if (!localStorage.getItem('skyleaf_reels')) {
+  localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
 }
 if (!localStorage.getItem('skyleaf_leads')) {
   localStorage.setItem('skyleaf_leads', JSON.stringify([]));
@@ -2198,6 +2157,56 @@ function renderGallery() {
     observeReveals();
   }
 }
+
+// Render Reels Track
+function renderReels() {
+  const reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
+  const track = document.querySelector('.reels-track');
+  if (!track) return;
+  track.innerHTML = '';
+
+  reels.forEach((reel, idx) => {
+    const card = document.createElement('article');
+    card.className = 'reel-card';
+    card.setAttribute('data-video-url', reel.video);
+    
+    const hasCover = !!reel.image;
+    const bgHtml = hasCover 
+      ? `<div class="reel-bg" style="background: url('${reel.image}') center/cover no-repeat;"></div>` 
+      : `<div class="reel-bg" style="background: linear-gradient(135deg, ${getReelGradient(idx)} 0%, ${getReelGradient(idx+1)} 100%);"></div>`;
+
+    card.innerHTML = `
+      ${bgHtml}
+      <div class="reel-gradient"></div>
+      <div class="reel-play" aria-label="Play reel">▶</div>
+      <div class="reel-info">
+        <div class="reel-title">${reel.title}</div>
+        <div class="reel-views">${reel.views || '0 views'}</div>
+      </div>
+    `;
+    track.appendChild(card);
+  });
+
+  bindDynamicPlayEvents();
+  if (typeof observeReveals === 'function') {
+    observeReveals();
+  }
+}
+
+function getReelGradient(index) {
+  const colors = [
+    '#0066CC',
+    '#28A745',
+    '#0F172A',
+    '#4F46E5',
+    '#0891B2',
+    '#059669',
+    '#2563EB',
+    '#10B981'
+  ];
+  return colors[index % colors.length];
+}
+
 
 /* ── ALBUM SLIDESHOW MODAL SYSTEM ── */
 const albumModal = document.getElementById('album-modal');
@@ -2362,6 +2371,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFeaturedStory();
   renderStories();
   renderGallery();
+  renderReels();
 });
 
 /* ── LIGHTBOX MODAL SYSTEM ── */
