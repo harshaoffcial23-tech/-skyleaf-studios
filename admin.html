@@ -247,6 +247,68 @@
     .admin-story-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
     .admin-story-meta { font-size: 12px; color: var(--text-muted); }
 
+    /* ── GALLERY ADMIN STYLING ── */
+    .btn-add {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: background 0.3s;
+    }
+    .btn-add:hover { background: #0052cc; }
+    
+    .gallery-admin-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+      display: flex;
+      flex-direction: column;
+    }
+    .gallery-admin-img-wrap {
+      aspect-ratio: 4/3;
+      width: 100%;
+      background: #f1f5f9;
+      overflow: hidden;
+      position: relative;
+    }
+    .gallery-admin-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .gallery-admin-info {
+      padding: 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .gallery-admin-tag {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .gallery-admin-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .gallery-admin-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
   </style>
 </head>
 <body>
@@ -278,6 +340,9 @@
         </button>
         <button class="side-nav-btn" onclick="switchTab('featured', this)">
           ⭐ Featured Banner
+        </button>
+        <button class="side-nav-btn" onclick="switchTab('gallery', this)">
+          📸 Manage Gallery
         </button>
         <button class="side-nav-btn" onclick="switchTab('leads', this)">
           📨 Leads Dashboard
@@ -331,12 +396,14 @@
               <div class="form-row">
                 <div class="form-group">
                   <label>Cover Image Source</label>
-                  <select id="story-image">
-                    <option value="IMG_5708.PNG">DUPATTA SUNSET (IMG_5708.PNG)</option>
-                    <option value="IMG_5709.PNG">WALKING SUNSET (IMG_5709.PNG)</option>
-                    <option value="IMG_5711.PNG">SIDE PROFILE SUNSET (IMG_5711.PNG)</option>
-                    <option value="IMG_6060.JPG.jpeg">PORTRAIT BLUE (IMG_6060.JPG.jpeg)</option>
-                  </select>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" id="story-image" required placeholder="Image URL or local file path" style="flex: 1;">
+                    <label class="btn-submit" style="padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; white-space: nowrap; margin-bottom: 0;">
+                      Upload File
+                      <input type="file" accept="image/*" onchange="handleImageUpload(event, 'story-image')" style="display: none;">
+                    </label>
+                  </div>
+                  <div class="upload-progress" id="story-image-progress" style="display: none; font-size: 11px; margin-top: 4px; color: var(--green);">Compressing image...</div>
                 </div>
                 <div class="form-group">
                   <label>YouTube Embed Link</label>
@@ -385,12 +452,14 @@
               <div class="form-row">
                 <div class="form-group">
                   <label>Background Image</label>
-                  <select id="feat-image">
-                    <option value="IMG_5708.PNG">DUPATTA SUNSET (IMG_5708.PNG)</option>
-                    <option value="IMG_5709.PNG">WALKING SUNSET (IMG_5709.PNG)</option>
-                    <option value="IMG_5711.PNG">SIDE PROFILE SUNSET (IMG_5711.PNG)</option>
-                    <option value="IMG_6060.JPG.jpeg">PORTRAIT BLUE (IMG_6060.JPG.jpeg)</option>
-                  </select>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" id="feat-image" required placeholder="Image URL or local file path" style="flex: 1;">
+                    <label class="btn-submit" style="padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; white-space: nowrap; margin-bottom: 0;">
+                      Upload File
+                      <input type="file" accept="image/*" onchange="handleImageUpload(event, 'feat-image')" style="display: none;">
+                    </label>
+                  </div>
+                  <div class="upload-progress" id="feat-image-progress" style="display: none; font-size: 11px; margin-top: 4px; color: var(--green);">Compressing image...</div>
                 </div>
                 <div class="form-group">
                   <label>YouTube Trailer Embed Link</label>
@@ -432,6 +501,63 @@
           </div>
         </div>
 
+        <!-- Tab 4: Manage Gallery -->
+        <div id="panel-gallery" class="panel">
+          <div class="panel-header">
+            <h1 class="panel-title">Manage Gallery Frames</h1>
+            <button class="btn-add" onclick="showAddGalleryModal()">+ Add New Frame</button>
+          </div>
+
+          <!-- Add Gallery Frame Modal / Form (hidden by default) -->
+          <div id="gallery-form-container" class="card" style="display: none; margin-bottom: 24px;">
+            <div class="card-title" id="gallery-form-title">Add New Frame to Portfolio</div>
+            <form id="gallery-form" onsubmit="saveGalleryFrame(event)">
+              <input type="hidden" id="gallery-edit-id">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Frame Caption/Title</label>
+                  <input type="text" id="gallery-title" required placeholder="e.g., Golden Hour Breeze">
+                </div>
+                <div class="form-group">
+                  <label>Category/Tag</label>
+                  <select id="gallery-tag" required>
+                    <option value="Pre-Wedding">Pre-Wedding</option>
+                    <option value="Wedding">Wedding</option>
+                    <option value="Portrait Session">Portrait Session</option>
+                    <option value="Maternity">Maternity / Family</option>
+                    <option value="Editorial">Editorial</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Image Source</label>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                  <input type="text" id="gallery-image" required placeholder="Pasted image URL or select file" style="flex: 1;">
+                  <span style="font-size: 13px; color: var(--text-muted);">OR</span>
+                  <label class="btn-submit" style="padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; margin-bottom: 0; white-space: nowrap;">
+                    Upload File
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'gallery-image')" style="display: none;">
+                  </label>
+                </div>
+                <div class="upload-progress" id="gallery-image-progress" style="display: none; font-size: 12px; margin-top: 6px; color: var(--green);">Compressing image...</div>
+                <div style="margin-top: 12px;">
+                  <img id="gallery-preview" src="" style="max-height: 120px; border-radius: 6px; display: none; border: 1px solid var(--border);">
+                </div>
+              </div>
+              <div style="display: flex; gap: 12px;">
+                <button type="submit" class="btn-submit" style="flex: 1;">Add Frame</button>
+                <button type="button" class="logout-btn" onclick="hideAddGalleryModal()" style="padding: 12px 24px;">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card" style="padding: 24px;">
+            <div class="gallery-admin-grid" id="gallery-admin-grid">
+              <!-- Dynamic gallery items -->
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -470,6 +596,7 @@
       
       if (tabName === 'manage') loadStoriesGrid();
       if (tabName === 'featured') loadFeaturedForm();
+      if (tabName === 'gallery') loadGalleryGrid();
       if (tabName === 'leads') loadLeadsTable();
     }
 
@@ -659,6 +786,153 @@
       if (!confirm('Are you absolutely sure you want to clear ALL inquiries? This cannot be undone.')) return;
       localStorage.setItem('skyleaf_leads', JSON.stringify([]));
       loadLeadsTable();
+    }
+
+    // ── GALLERY PANEL OPERATIONS ──
+    function loadGalleryGrid() {
+      const gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
+      const grid = document.getElementById('gallery-admin-grid');
+      grid.innerHTML = '';
+
+      if (gallery.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No frames added to the portfolio yet. Click "+ Add New Frame" to start.</div>';
+        return;
+      }
+
+      gallery.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'gallery-admin-item';
+        el.innerHTML = `
+          <div class="gallery-admin-img-wrap">
+            <img src="${item.image}" alt="${item.title}">
+          </div>
+          <div class="gallery-admin-info">
+            <div class="gallery-admin-tag">${item.tag}</div>
+            <div class="gallery-admin-title">${item.title}</div>
+            <div class="gallery-admin-actions">
+              <button class="logout-btn" onclick="deleteGalleryFrame(${item.id})" style="border-color: #d32f2f; color: #d32f2f; flex: 1; text-align: center;">Delete</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    function showAddGalleryModal() {
+      document.getElementById('gallery-form-container').style.display = 'block';
+      document.getElementById('gallery-form').reset();
+      document.getElementById('gallery-edit-id').value = '';
+      document.getElementById('gallery-preview').style.display = 'none';
+      document.getElementById('gallery-preview').src = '';
+    }
+
+    function hideAddGalleryModal() {
+      document.getElementById('gallery-form-container').style.display = 'none';
+    }
+
+    function saveGalleryFrame(e) {
+      e.preventDefault();
+      const id = document.getElementById('gallery-edit-id').value;
+      const title = document.getElementById('gallery-title').value;
+      const tag = document.getElementById('gallery-tag').value;
+      const image = document.getElementById('gallery-image').value;
+
+      let gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
+
+      if (id) {
+        gallery = gallery.map(item => item.id == id ? { id: parseInt(id), title, tag, image } : item);
+      } else {
+        gallery.push({
+          id: Date.now(),
+          title,
+          tag,
+          image
+        });
+      }
+
+      localStorage.setItem('skyleaf_gallery', JSON.stringify(gallery));
+      hideAddGalleryModal();
+      loadGalleryGrid();
+    }
+
+    function deleteGalleryFrame(id) {
+      if (!confirm('Are you sure you want to delete this frame from your portfolio?')) return;
+      let gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
+      gallery = gallery.filter(item => item.id !== id);
+      localStorage.setItem('skyleaf_gallery', JSON.stringify(gallery));
+      loadGalleryGrid();
+    }
+
+    // ── IMAGE FILE SELECTION & CANVAS COMPRESSION ──
+    function handleImageUpload(event, inputId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const progressEl = document.getElementById(inputId + '-progress');
+      if (progressEl) progressEl.style.display = 'block';
+
+      compressImage(file, 1000, 1000, 0.7, (base64Str) => {
+        if (progressEl) progressEl.style.display = 'none';
+        if (base64Str) {
+          document.getElementById(inputId).value = base64Str;
+          
+          if (inputId === 'gallery-image') {
+            const preview = document.getElementById('gallery-preview');
+            if (preview) {
+              preview.src = base64Str;
+              preview.style.display = 'block';
+            }
+          }
+        } else {
+          alert('Failed to compress selected image.');
+        }
+      });
+    }
+
+    function compressImage(file, maxWidth, maxHeight, quality, callback) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          try {
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            callback(dataUrl);
+          } catch (err) {
+            console.error('Compression error:', err);
+            callback(null);
+          }
+        };
+        img.onerror = function() {
+          callback(null);
+        };
+        img.src = e.target.result;
+      };
+      reader.onerror = function() {
+        callback(null);
+      };
+      reader.readAsDataURL(file);
     }
   </script>
 </body>

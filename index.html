@@ -1390,46 +1390,8 @@
   <h2 class="section-title reveal reveal-delay-1">Frames We Are <em>Proud Of</em></h2>
   <div class="gold-line reveal reveal-delay-2"></div>
   
-  <div class="gallery-grid">
-    <div class="gallery-item reveal" onclick="openLightbox('IMG_5708.PNG', 'Cinematic Pre-Wedding Sunset - Duppata wave')">
-      <img src="IMG_5708.PNG" alt="Duppata wave sunset shoot">
-      <div class="gallery-overlay">
-        <div>
-          <div class="gallery-tag">Pre-Wedding</div>
-          <div class="gallery-text">Sunset Breeze</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="gallery-item reveal reveal-delay-1" onclick="openLightbox('IMG_5711.PNG', 'Cinematic Pre-Wedding Sunset - Profile look')">
-      <img src="IMG_5711.PNG" alt="Profile look sunset shoot">
-      <div class="gallery-overlay">
-        <div>
-          <div class="gallery-tag">Pre-Wedding</div>
-          <div class="gallery-text">Golden Hour Glance</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="gallery-item reveal reveal-delay-2" onclick="openLightbox('IMG_5709.PNG', 'Cinematic Pre-Wedding Sunset - Riverside Walk')">
-      <img src="IMG_5709.PNG" alt="Riverside walk sunset shoot">
-      <div class="gallery-overlay">
-        <div>
-          <div class="gallery-tag">Pre-Wedding</div>
-          <div class="gallery-text">Pathway to Forever</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="gallery-item reveal reveal-delay-3" onclick="openLightbox('IMG_6060.JPG.jpeg', 'Editorial Maternity / Family Portrait')">
-      <img src="IMG_6060.JPG.jpeg" alt="Maternity family editorial portrait">
-      <div class="gallery-overlay">
-        <div>
-          <div class="gallery-tag">Portrait Session</div>
-          <div class="gallery-text">Moments in Bloom</div>
-        </div>
-      </div>
-    </div>
+  <div class="gallery-grid" id="gallery-grid-container">
+    <!-- Dynamic Content from localStorage -->
   </div>
 </section>
 
@@ -1984,12 +1946,22 @@ const defaultFeatured = {
   video: "https://www.youtube.com/embed/2g811EoVkWc"
 };
 
+const defaultGallery = [
+  { id: 1, title: "Sunset Breeze", tag: "Pre-Wedding", image: "IMG_5708.PNG" },
+  { id: 2, title: "Golden Hour Glance", tag: "Pre-Wedding", image: "IMG_5711.PNG" },
+  { id: 3, title: "Pathway to Forever", tag: "Pre-Wedding", image: "IMG_5709.PNG" },
+  { id: 4, title: "Moments in Bloom", tag: "Portrait Session", image: "IMG_6060.JPG.jpeg" }
+];
+
 // Initialize Storage
 if (!localStorage.getItem('skyleaf_stories')) {
   localStorage.setItem('skyleaf_stories', JSON.stringify(defaultStories));
 }
 if (!localStorage.getItem('skyleaf_featured')) {
   localStorage.setItem('skyleaf_featured', JSON.stringify(defaultFeatured));
+}
+if (!localStorage.getItem('skyleaf_gallery')) {
+  localStorage.setItem('skyleaf_gallery', JSON.stringify(defaultGallery));
 }
 if (!localStorage.getItem('skyleaf_leads')) {
   localStorage.setItem('skyleaf_leads', JSON.stringify([]));
@@ -2078,6 +2050,33 @@ function renderStories() {
   }
 }
 
+// Render Gallery Grid
+function renderGallery() {
+  const gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
+  const container = document.getElementById('gallery-grid-container');
+  if (container) {
+    container.innerHTML = '';
+    gallery.forEach((item, idx) => {
+      const el = document.createElement('div');
+      el.className = `gallery-item reveal reveal-delay-${idx % 4}`;
+      el.setAttribute('onclick', `openLightbox('${item.image}', '${item.title.replace(/'/g, "\\'")}')`);
+      el.innerHTML = `
+        <img src="${item.image}" alt="${item.title}">
+        <div class="gallery-overlay">
+          <div>
+            <div class="gallery-tag">${item.tag}</div>
+            <div class="gallery-text">${item.title}</div>
+          </div>
+        </div>
+      `;
+      container.appendChild(el);
+    });
+  }
+  if (typeof observeReveals === 'function') {
+    observeReveals();
+  }
+}
+
 function bindDynamicPlayEvents() {
   const playElements = document.querySelectorAll('[data-video-url]');
   playElements.forEach(el => {
@@ -2126,6 +2125,7 @@ if (inquiryForm) {
 document.addEventListener('DOMContentLoaded', () => {
   loadFeaturedStory();
   renderStories();
+  renderGallery();
 });
 
 /* ── LIGHTBOX MODAL SYSTEM ── */
