@@ -655,6 +655,9 @@
     margin-top: 48px;
   }
   .collection-item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
     padding: 44px 36px;
     background: var(--white);
     border: 1px solid rgba(15, 23, 42, 0.08);
@@ -1445,49 +1448,8 @@
   <span class="section-label reveal">Memory Collections</span>
   <h2 class="section-title reveal reveal-delay-1">What We <em>Create</em></h2>
   <div class="gold-line reveal reveal-delay-2"></div>
-  <div class="collections-grid">
-    <div class="collection-item reveal" onclick="window.location.href='collections.html?category=wedding'">
-      <span class="collection-num">01</span>
-      <span class="collection-icon" aria-hidden="true">💍</span>
-      <h3 class="collection-name">Wedding Photography &amp; Cinematic Videography</h3>
-      <p class="collection-desc">From sangeet to bidaai — every ritual, every tear, every laugh, told as a film that outlasts the occasion.</p>
-      <a href="collections.html?category=wedding" class="collection-link">Explore Collection →</a>
-    </div>
-    <div class="collection-item reveal reveal-delay-1" onclick="window.location.href='collections.html?category=pre-wedding'">
-      <span class="collection-num">02</span>
-      <span class="collection-icon" aria-hidden="true">🎬</span>
-      <h3 class="collection-name">Pre-Wedding Films</h3>
-      <p class="collection-desc">Your story before the story. Shot at golden hour, in rain, in ruins — wherever love looks most like itself.</p>
-      <a href="collections.html?category=pre-wedding" class="collection-link">Explore Collection →</a>
-    </div>
-    <div class="collection-item reveal reveal-delay-2" onclick="window.location.href='collections.html?category=baby'">
-      <span class="collection-num">03</span>
-      <span class="collection-icon" aria-hidden="true">🌿</span>
-      <h3 class="collection-name">Baby &amp; Newborn Stories</h3>
-      <p class="collection-desc">The first yawn. The first grip. The first everything. Captured with the softness those moments deserve.</p>
-      <a href="collections.html?category=baby" class="collection-link">Explore Collection →</a>
-    </div>
-    <div class="collection-item reveal" onclick="window.location.href='collections.html?category=family'">
-      <span class="collection-num">04</span>
-      <span class="collection-icon" aria-hidden="true">👨‍👩‍👧</span>
-      <h3 class="collection-name">Family &amp; Maternity Portraits</h3>
-      <p class="collection-desc">Not poses — moments. The chaos of Sunday mornings and the warmth of belonging, preserved on film.</p>
-      <a href="collections.html?category=family" class="collection-link">Explore Collection →</a>
-    </div>
-    <div class="collection-item reveal reveal-delay-1" onclick="window.location.href='collections.html?category=reels'">
-      <span class="collection-num">05</span>
-      <span class="collection-icon" aria-hidden="true">📱</span>
-      <h3 class="collection-name">Cinematic Reels</h3>
-      <p class="collection-desc">Short-form content that stops the scroll. Vertical films crafted for Instagram with the same care as a feature.</p>
-      <a href="collections.html?category=reels" class="collection-link">Explore Collection →</a>
-    </div>
-    <div class="collection-item reveal reveal-delay-2" onclick="window.location.href='collections.html?category=creative'">
-      <span class="collection-num">06</span>
-      <span class="collection-icon" aria-hidden="true">🎥</span>
-      <h3 class="collection-name">Creative Productions</h3>
-      <p class="collection-desc">Brand films, music videos, commercial shoots — visual storytelling for creators and businesses.</p>
-      <a href="collections.html?category=creative" class="collection-link">Explore Collection →</a>
-    </div>
+  <div class="collections-grid" id="collections-grid-container">
+    <!-- Dynamic Collections cards will render here -->
   </div>
 </section>
 
@@ -2017,6 +1979,15 @@ const defaultReels = [
   { id: 6, title: "The Bidaai", video: "https://www.youtube.com/embed/2g811EoVkWc", views: "304K views", image: "" }
 ];
 
+const defaultCollections = [
+  { id: 1, num: "01", icon: "💍", title: "Wedding Photography & Cinematic Videography", desc: "From sangeet to bidaai — every ritual, every tear, every laugh, told as a film that outlasts the occasion.", link: "wedding" },
+  { id: 2, num: "02", icon: "🎬", title: "Pre-Wedding Films", desc: "Your story before the story. Shot at golden hour, in rain, in ruins — wherever love looks most like itself.", link: "pre-wedding" },
+  { id: 3, num: "03", icon: "🌿", title: "Baby & Newborn Stories", desc: "The first yawn. The first grip. The first everything. Captured with the softness those moments deserve.", link: "baby" },
+  { id: 4, num: "04", icon: "👨‍👩‍👧", title: "Family & Maternity Portraits", desc: "Not poses — moments. The chaos of Sunday mornings and the warmth of belonging, preserved on film.", link: "family" },
+  { id: 5, num: "05", icon: "📱", title: "Cinematic Reels", desc: "Short-form content that stops the scroll. Vertical films crafted for Instagram with the same care as a feature.", link: "reels" },
+  { id: 6, num: "06", icon: "🎥", title: "Creative Productions", desc: "Brand films, music videos, commercial shoots — visual storytelling for creators and businesses.", link: "creative" }
+];
+
 // Initialize Storage
 if (!localStorage.getItem('skyleaf_stories')) {
   localStorage.setItem('skyleaf_stories', JSON.stringify(defaultStories));
@@ -2029,6 +2000,9 @@ if (!localStorage.getItem('skyleaf_gallery')) {
 }
 if (!localStorage.getItem('skyleaf_reels')) {
   localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
+}
+if (!localStorage.getItem('skyleaf_collections')) {
+  localStorage.setItem('skyleaf_collections', JSON.stringify(defaultCollections));
 }
 if (!localStorage.getItem('skyleaf_leads')) {
   localStorage.setItem('skyleaf_leads', JSON.stringify([]));
@@ -2207,6 +2181,32 @@ function getReelGradient(index) {
   return colors[index % colors.length];
 }
 
+// Render Collections Grid
+function renderCollections() {
+  const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
+  const container = document.getElementById('collections-grid-container');
+  if (container) {
+    container.innerHTML = '';
+    collections.forEach((item, idx) => {
+      const el = document.createElement('a');
+      el.href = `collections.html?category=${encodeURIComponent(item.link)}`;
+      el.className = `collection-item reveal reveal-delay-${idx % 3}`;
+      el.style.textDecoration = 'none';
+      el.innerHTML = `
+        <span class="collection-num">${item.num || ''}</span>
+        <span class="collection-icon">${item.icon || ''}</span>
+        <h3 class="collection-name">${item.title || ''}</h3>
+        <p class="collection-desc">${item.desc || ''}</p>
+        <span class="collection-link">Explore Collection &rarr;</span>
+      `;
+      container.appendChild(el);
+    });
+  }
+  if (typeof observeReveals === 'function') {
+    observeReveals();
+  }
+}
+
 
 /* ── ALBUM SLIDESHOW MODAL SYSTEM ── */
 const albumModal = document.getElementById('album-modal');
@@ -2372,6 +2372,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderStories();
   renderGallery();
   renderReels();
+  renderCollections();
 });
 
 /* ── LIGHTBOX MODAL SYSTEM ── */

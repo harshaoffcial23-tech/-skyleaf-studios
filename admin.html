@@ -395,6 +395,9 @@
         <button class="side-nav-btn" onclick="switchTab('reels', this)">
           📱 Manage Reels
         </button>
+        <button class="side-nav-btn" onclick="switchTab('collections', this)">
+          📁 Manage Collections
+        </button>
         <button class="side-nav-btn" onclick="switchTab('leads', this)">
           📨 Leads Dashboard
         </button>
@@ -689,6 +692,58 @@
           </div>
         </div>
 
+        <!-- Tab 6: Manage Collections -->
+        <div id="panel-collections" class="panel">
+          <div class="panel-header">
+            <h1 class="panel-title">Manage Memory Collections</h1>
+            <button class="btn-add" onclick="showAddCollectionForm()">+ Add New Collection</button>
+          </div>
+
+          <!-- Add/Edit Collection Form (Toggleable) -->
+          <div class="card" id="collection-form-card" style="display: none; margin-bottom: 24px;">
+            <h3 style="font-family: var(--serif); font-size: 20px; margin-bottom: 20px;" id="collection-form-action-title">Add New Collection</h3>
+            <form id="collection-form" onsubmit="saveCollection(event)">
+              <input type="hidden" id="edit-collection-id">
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Display Number</label>
+                  <input type="text" id="coll-num" required placeholder="e.g., 01">
+                </div>
+                <div class="form-group">
+                  <label>Emoji Icon</label>
+                  <input type="text" id="coll-icon" required placeholder="e.g., 💍">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Collection Title</label>
+                  <input type="text" id="coll-title" required placeholder="e.g., Wedding Photography & Cinematic Videography">
+                </div>
+                <div class="form-group">
+                  <label>Category URL Parameter (slug)</label>
+                  <input type="text" id="coll-link" required placeholder="e.g., wedding">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Description</label>
+                <textarea id="coll-desc" required placeholder="Brief description of the collection category..." rows="3"></textarea>
+              </div>
+
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" class="btn-submit">Save Collection</button>
+                <button type="button" class="logout-btn" onclick="hideAddCollectionForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-stories-grid" id="admin-collections-grid">
+            <!-- Dynamic Collections List -->
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -729,6 +784,7 @@
       if (tabName === 'featured') loadFeaturedForm();
       if (tabName === 'gallery') loadGalleryGrid();
       if (tabName === 'reels') loadReelsGrid();
+      if (tabName === 'collections') loadCollectionsGrid();
       if (tabName === 'leads') loadLeadsTable();
     }
 
@@ -745,6 +801,17 @@
           { id: 6, title: "The Bidaai", video: "https://www.youtube.com/embed/2g811EoVkWc", views: "304K views", image: "" }
         ];
         localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
+      }
+      if (!localStorage.getItem('skyleaf_collections')) {
+        const defaultCollections = [
+          { id: 1, num: "01", icon: "💍", title: "Wedding Photography & Cinematic Videography", desc: "From sangeet to bidaai — every ritual, every tear, every laugh, told as a film that outlasts the occasion.", link: "wedding" },
+          { id: 2, num: "02", icon: "🎬", title: "Pre-Wedding Films", desc: "Your story before the story. Shot at golden hour, in rain, in ruins — wherever love looks most like itself.", link: "pre-wedding" },
+          { id: 3, num: "03", icon: "🌿", title: "Baby & Newborn Stories", desc: "The first yawn. The first grip. The first everything. Captured with the softness those moments deserve.", link: "baby" },
+          { id: 4, num: "04", icon: "👨‍👩‍👧", title: "Family & Maternity Portraits", desc: "Not poses — moments. The chaos of Sunday mornings and the warmth of belonging, preserved on film.", link: "family" },
+          { id: 5, num: "05", icon: "📱", title: "Cinematic Reels", desc: "Short-form content that stops the scroll. Vertical films crafted for Instagram with the same care as a feature.", link: "reels" },
+          { id: 6, num: "06", icon: "🎥", title: "Creative Productions", desc: "Brand films, music videos, commercial shoots — visual storytelling for creators and businesses.", link: "creative" }
+        ];
+        localStorage.setItem('skyleaf_collections', JSON.stringify(defaultCollections));
       }
     }
 
@@ -1211,6 +1278,103 @@
       reels = reels.filter(r => r.id != id);
       localStorage.setItem('skyleaf_reels', JSON.stringify(reels));
       loadReelsGrid();
+    }
+
+    // ── COLLECTIONS PANEL OPERATIONS ──
+    function loadCollectionsGrid() {
+      const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
+      const grid = document.getElementById('admin-collections-grid');
+      grid.innerHTML = '';
+
+      if (collections.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No memory collections added yet. Click "+ Add New Collection" to start.</div>';
+        return;
+      }
+
+      collections.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-story-card';
+        
+        card.innerHTML = `
+          <div class="admin-story-img" style="display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0, 102, 204, 0.05); flex-shrink: 0; width: 60px; height: 80px; border-radius: 4px; border: 1px solid var(--border);">${item.icon || '📁'}</div>
+          <div class="admin-story-details">
+            <div class="admin-story-title">${item.title}</div>
+            <div class="admin-story-meta">
+              <span>Collection #${item.num}</span> &middot; <span>Slug: ${item.link}</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="logout-btn" onclick="editCollection(${item.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
+            <button class="delete-btn" onclick="deleteCollection(${item.id})">Delete</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function showAddCollectionForm() {
+      document.getElementById('collection-form-action-title').textContent = 'Add New Collection';
+      document.getElementById('edit-collection-id').value = '';
+      document.getElementById('collection-form').reset();
+      document.getElementById('collection-form-card').style.display = 'block';
+    }
+
+    function hideAddCollectionForm() {
+      document.getElementById('collection-form-card').style.display = 'none';
+    }
+
+    function saveCollection(e) {
+      e.preventDefault();
+      const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
+      const editId = document.getElementById('edit-collection-id').value;
+
+      const item = {
+        num: document.getElementById('coll-num').value,
+        icon: document.getElementById('coll-icon').value,
+        title: document.getElementById('coll-title').value,
+        link: document.getElementById('coll-link').value,
+        desc: document.getElementById('coll-desc').value
+      };
+
+      if (editId) {
+        const idx = collections.findIndex(c => c.id == editId);
+        if (idx !== -1) {
+          item.id = parseInt(editId);
+          collections[idx] = item;
+        }
+      } else {
+        item.id = Date.now();
+        collections.push(item);
+      }
+
+      localStorage.setItem('skyleaf_collections', JSON.stringify(collections));
+      hideAddCollectionForm();
+      loadCollectionsGrid();
+    }
+
+    function editCollection(id) {
+      const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
+      const item = collections.find(c => c.id == id);
+      if (!item) return;
+
+      document.getElementById('collection-form-action-title').textContent = 'Edit Collection';
+      document.getElementById('edit-collection-id').value = item.id;
+      document.getElementById('coll-num').value = item.num || '';
+      document.getElementById('coll-icon').value = item.icon || '';
+      document.getElementById('coll-title').value = item.title || '';
+      document.getElementById('coll-link').value = item.link || '';
+      document.getElementById('coll-desc').value = item.desc || '';
+
+      document.getElementById('collection-form-card').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteCollection(id) {
+      if (!confirm('Are you sure you want to delete this collection?')) return;
+      let collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
+      collections = collections.filter(c => c.id != id);
+      localStorage.setItem('skyleaf_collections', JSON.stringify(collections));
+      loadCollectionsGrid();
     }
 
     // ── IMAGE FILE SELECTION & CANVAS COMPRESSION ──
