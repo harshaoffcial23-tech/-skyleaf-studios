@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyLeaf Studios — Explore Collections</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Plyr Video Player Stylesheet -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
+  
+  <style>
+    :root {
+      --bg: #FAFAFA;
+      --bg2: #F1F5F9;
+      --white: #FFFFFF;
+      --blue: #0066CC;
+      --blue-glow: rgba(0, 102, 204, 0.08);
+      --green: #28A745;
+      --text: #0F172A;
+      --text-muted: #475569;
+      --border: rgba(0, 102, 204, 0.08);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    a { color: var(--blue); text-decoration: none; }
+
+    /* ── HEADER NAVIGATION ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 20px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0, 102, 204, 0.08);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo .logo-leaf { color: var(--green); font-style: italic; }
+    .logo-img { height: 38px; width: 38px; object-fit: contain; }
+    .btn-back {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 10px 22px;
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      background: transparent;
+      transition: background 0.3s, color 0.3s;
+      font-weight: 500;
+      border-radius: 4px;
+    }
+    .btn-back:hover { background: var(--blue); color: #fff; }
+
+    /* ── CATEGORY TITLE BANNER ── */
+    .title-banner {
+      margin-top: 140px;
+      padding: 0 80px 20px;
+      text-align: center;
+    }
+    .banner-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+      display: block;
+      font-weight: 600;
+    }
+    .banner-title {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4.5vw, 56px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--text);
+    }
+    .banner-title em { font-style: italic; color: var(--green); }
+    .gold-line {
+      width: 60px; height: 1px;
+      background: linear-gradient(to right, var(--blue), var(--green));
+      margin: 24px auto 0;
+    }
+
+    /* ── CONTENT GRID SECTIONS ── */
+    section { padding: 40px 80px 80px; }
+    .section-header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-title { font-family: var(--serif); font-size: 26px; font-weight: 300; }
+    .section-title em { font-style: italic; color: var(--blue); }
+
+    /* Dynamic Grid Layouts */
+    .stories-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    
+    /* Movie Cards */
+    .movie-card {
+      position: relative;
+      aspect-ratio: 16/10;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(15,23,42,0.04);
+      border: 1px solid rgba(15,23,42,0.03);
+    }
+    .movie-card-bg {
+      position: absolute; inset: 0;
+      transition: transform 0.5s ease;
+    }
+    .movie-card:hover .movie-card-bg { transform: scale(1.04); }
+    .movie-card-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.3) 50%, transparent 100%);
+    }
+    .card-play {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0.9);
+      width: 48px; height: 48px;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px;
+      background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(4px);
+      transition: all 0.3s;
+      opacity: 0.9;
+    }
+    .movie-card:hover .card-play {
+      transform: translate(-50%,-50%) scale(1.05);
+      background: var(--blue);
+      border-color: var(--blue);
+      box-shadow: 0 0 15px rgba(0, 102, 204, 0.4);
+    }
+    .movie-card-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px;
+    }
+    .card-category {
+      font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--green); font-weight: 600; margin-bottom: 4px;
+    }
+    .card-title {
+      font-family: var(--serif); font-size: 20px; font-weight: 400; color: #FFFFFF;
+      margin-bottom: 2px;
+    }
+    .card-meta { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+    /* Photo Gallery Grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 4/3;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+      border: 1px solid rgba(15,23,42,0.02);
+    }
+    .gallery-item img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.05); }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,23,42,0.8) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex; align-items: flex-end;
+      padding: 16px;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-tag {
+      font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--green); font-weight: 600; margin-bottom: 2px;
+    }
+    .gallery-text {
+      font-family: var(--serif); font-size: 16px; color: #FFFFFF;
+    }
+
+    /* Reels grid */
+    .reels-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    .reel-card {
+      position: relative;
+      aspect-ratio: 9/16;
+      background: #E2E8F0;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(15, 23, 42, 0.03);
+    }
+    .reel-bg {
+      position: absolute; inset: 0;
+      transition: transform 0.5s;
+    }
+    .reel-card:hover .reel-bg { transform: scale(1.05); }
+    .reel-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);
+    }
+    .reel-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 16px 12px;
+    }
+    .reel-title { font-family: var(--serif); font-size: 14px; font-weight: 400; color: #FFFFFF; margin-bottom: 4px; }
+    .reel-views { font-size: 10px; color: rgba(255,255,255,0.7); letter-spacing: 0.05em; }
+    .reel-play {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0.9);
+      width: 40px; height: 40px;
+      border: 1px solid rgba(0, 102, 204, 0.6);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue); font-size: 14px;
+      transition: all 0.3s;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 4px 10px rgba(0, 102, 204, 0.15);
+    }
+    .reel-card:hover .reel-play { transform: translate(-50%,-50%) scale(1.05); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 80px 24px;
+      border: 1px dashed rgba(0, 102, 204, 0.15);
+      border-radius: 12px;
+      background: var(--white);
+    }
+    .empty-title { font-family: var(--serif); font-size: 22px; color: var(--text-muted); margin-bottom: 10px; }
+    .empty-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+
+    /* ── LUXURY MODALS ── */
+    /* Lightbox Modal */
+    .lightbox-modal {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .lightbox-modal.open { opacity: 1; pointer-events: auto; }
+    .lightbox-container {
+      width: 90%; max-width: 900px;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+    .lightbox-img-wrap {
+      width: 100%; aspect-ratio: 4/3;
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      background: #000;
+    }
+    .lightbox-container img { width: 100%; height: 100%; object-fit: contain; }
+    .lightbox-caption {
+      font-family: var(--serif); font-size: 20px; font-weight: 300;
+      color: #fff; text-align: center; margin-top: 20px; letter-spacing: 0.05em;
+    }
+    .lightbox-close {
+      position: absolute; top: -50px; right: 0;
+      background: none; border: none; font-size: 32px; color: #fff;
+      cursor: pointer; opacity: 0.7; transition: opacity 0.3s;
+    }
+    .lightbox-close:hover { opacity: 1; }
+
+    /* Video Player Modal */
+    .video-modal {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .video-modal.open { opacity: 1; pointer-events: auto; }
+    .video-container {
+      width: 90%; max-width: 1000px;
+      position: relative;
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+    }
+    .modal-close {
+      position: absolute; top: -50px; right: 0;
+      background: none; border: none; font-size: 32px; color: #fff;
+      cursor: pointer; opacity: 0.7; transition: opacity 0.3s;
+    }
+    .modal-close:hover { opacity: 1; }
+
+    /* Custom Branded Plyr styles */
+    .plyr--video {
+      border-radius: 12px;
+      --plyr-color-main: var(--blue);
+      --plyr-video-background: #000000;
+    }
+
+    /* Album Slideshow Modal styling */
+    .album-modal {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(15, 23, 42, 0.93);
+      backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .album-modal.open { opacity: 1; pointer-events: auto; }
+    .album-modal-container {
+      width: 90%; max-width: 1100px;
+      display: flex; flex-direction: column;
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.4s ease;
+    }
+    .album-modal.open .album-modal-container { transform: scale(1); }
+    .album-modal-close {
+      position: absolute; top: -50px; right: 0;
+      background: none; border: none; font-size: 36px; color: #fff;
+      cursor: pointer; opacity: 0.7; transition: opacity 0.3s;
+    }
+    .album-modal-close:hover { opacity: 1; }
+    .album-viewport {
+      width: 100%; aspect-ratio: 16/10;
+      background: #090d16;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    }
+    .album-viewport img {
+      max-width: 100%; max-height: 100%;
+      object-fit: contain;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .album-control {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 50px; height: 50px; border-radius: 50%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s;
+      z-index: 10;
+    }
+    .album-control:hover { background: var(--blue); border-color: var(--blue); }
+    .album-control.prev { left: 20px; }
+    .album-control.next { right: 20px; }
+    .album-info-bar {
+      margin-top: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      color: #fff;
+    }
+    .album-active-caption { font-family: var(--serif); font-size: 22px; font-weight: 300; }
+    .album-active-counter { font-size: 12px; opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; }
+    .album-thumbnails-wrap {
+      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .album-thumbnails-wrap::-webkit-scrollbar { height: 4px; }
+    .album-thumbnails-wrap::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+    .album-thumbnails { display: inline-flex; gap: 10px; }
+    .album-thumb {
+      height: 60px; aspect-ratio: 3/2;
+      object-fit: cover;
+      border-radius: 4px;
+      cursor: pointer;
+      opacity: 0.4;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    .album-thumb:hover { opacity: 0.8; }
+    .album-thumb.active { opacity: 1; border-color: var(--blue); transform: scale(1.03); }
+
+    /* ── RESPONSIVE DESIGN ── */
+    @media (max-width: 1024px) {
+      .stories-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+      .reels-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .title-banner { padding: 0 24px 20px; margin-top: 110px; }
+      section { padding: 30px 24px 60px; }
+      .stories-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .reels-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVIGATION BAR ── -->
+  <nav role="navigation" aria-label="Collections navigation">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="SkyLeaf Studios Logo" class="logo-img">
+      <span>Sky<span class="logo-leaf">Leaf</span> Studios</span>
+    </a>
+    <a href="index.html" class="btn-back">← Back to Home</a>
+  </nav>
+
+  <!-- ── CATEGORY TITLE BANNER ── -->
+  <header class="title-banner">
+    <span class="banner-eyebrow">Explore Collections</span>
+    <h1 class="banner-title" id="banner-category-name">Loading <em>Collection...</em></h1>
+    <div class="gold-line"></div>
+  </header>
+
+  <!-- ── MAIN CONTENT CONTAINER ── -->
+  <main>
+    
+    <!-- Dynamic Content Area -->
+    <div id="collections-container">
+      
+      <!-- Video Stories Section -->
+      <section id="category-films-section" style="display: none;">
+        <div class="section-header">
+          <h2 class="section-title">Cinematic <em>Highlight Films</em></h2>
+        </div>
+        <div class="stories-grid" id="category-films-grid">
+          <!-- Dynamic film cards -->
+        </div>
+      </section>
+
+      <!-- Photography / Image Albums Section -->
+      <section id="category-photos-section" style="display: none;">
+        <div class="section-header">
+          <h2 class="section-title">Photography <em>Albums & Showcase</em></h2>
+        </div>
+        <div class="gallery-grid" id="category-photos-grid">
+          <!-- Dynamic photo frames -->
+        </div>
+      </section>
+
+      <!-- Vertical Reels Section -->
+      <section id="category-reels-section" style="display: none;">
+        <div class="section-header">
+          <h2 class="section-title">Latest <em>Instagram Reels</em></h2>
+        </div>
+        <div class="reels-grid" id="category-reels-grid">
+          <!-- Dynamic reels -->
+        </div>
+      </section>
+
+      <!-- Empty State -->
+      <section id="category-empty-section" style="display: none;">
+        <div class="empty-state">
+          <h3 class="empty-title">Empty Collection</h3>
+          <p class="empty-desc">There are no items added to this collection category yet.</p>
+          <a href="admin.html" class="btn-back" style="display: inline-block;">Go to Admin Panel</a>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ── FULLSCREEN LIGHTBOX MODAL (FOR INDIVIDUAL PHOTOS) ── -->
+  <div id="lightbox-modal" class="lightbox-modal" aria-hidden="true" role="dialog">
+    <div class="lightbox-container">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close lightbox">×</button>
+      <div class="lightbox-img-wrap">
+        <img id="lightbox-img" src="" alt="Lightbox Zoom View">
+      </div>
+      <div id="lightbox-caption" class="lightbox-caption">Caption Text</div>
+    </div>
+  </div>
+
+  <!-- ── CUSTOM VIDEO PLAYER MODAL (FOR TRAILERS & REELS) ── -->
+  <div id="video-modal" class="video-modal" aria-hidden="true" role="dialog">
+    <div class="video-container">
+      <button class="modal-close" onclick="closeVideoModal()" aria-label="Close video player">×</button>
+      <div class="plyr__video-embed" id="player-wrapper">
+        <!-- Iframe gets dynamically injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LUXURY SLIDESHOW MODAL (FOR PHOTO STORIES / ALBUMS) ── -->
+  <div id="album-modal" class="album-modal" aria-hidden="true" role="dialog">
+    <div class="album-modal-container">
+      <button class="album-modal-close" onclick="closeAlbumModal()" aria-label="Close album modal">×</button>
+      
+      <div class="album-viewport">
+        <button class="album-control prev" onclick="prevAlbumImage()" aria-label="Previous photo">‹</button>
+        <img id="album-active-img" src="" alt="Active Album Photo">
+        <button class="album-control next" onclick="nextAlbumImage()" aria-label="Next photo">›</button>
+      </div>
+
+      <div class="album-info-bar">
+        <div class="album-active-caption" id="album-active-caption">Album Title</div>
+        <div class="album-active-counter" id="album-active-counter">Photo 1 of 1</div>
+      </div>
+
+      <div class="album-thumbnails-wrap">
+        <div class="album-thumbnails" id="album-thumbnails">
+          <!-- Thumbnails loaded here dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plyr Video Player JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
+
+  <script>
+    // Extract query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryQuery = urlParams.get('category') || '';
+
+    // Normalization maps
+    const categoryTitles = {
+      'wedding': 'Wedding <em>Films & photography</em>',
+      'pre-wedding': 'Pre-Wedding <em>Cinematics & stories</em>',
+      'baby': 'Baby &amp; <em>Newborn Diaries</em>',
+      'family': 'Family &amp; <em>Maternity Portraits</em>',
+      'reels': 'Cinematic <em>Instagram Reels</em>',
+      'creative': 'Creative <em>Productions & commercial</em>'
+    };
+
+    // Normalize category matches
+    function matchesCategory(itemCategory) {
+      const query = categoryQuery.toLowerCase();
+      const cat = (itemCategory || '').toLowerCase();
+      
+      if (query === 'wedding') {
+        // Matches wedding but not pre-wedding
+        return cat.includes('wedding') && !cat.includes('pre');
+      }
+      if (query === 'pre-wedding') {
+        return cat.includes('pre-wedding') || cat.includes('pre');
+      }
+      if (query === 'baby') {
+        return cat.includes('baby') || cat.includes('newborn') || cat.includes('diary');
+      }
+      if (query === 'family') {
+        return cat.includes('family') || cat.includes('maternity') || cat.includes('portrait');
+      }
+      if (query === 'reels') {
+        return cat.includes('reel');
+      }
+      if (query === 'creative') {
+        return cat.includes('creative') || cat.includes('production') || cat.includes('editorial');
+      }
+      return false;
+    }
+
+    // Set banner title on load
+    const titleEl = document.getElementById('banner-category-name');
+    if (categoryTitles[categoryQuery.toLowerCase()]) {
+      titleEl.innerHTML = categoryTitles[categoryQuery.toLowerCase()];
+    } else {
+      titleEl.innerHTML = 'Our <em>Signature Collection</em>';
+    }
+
+    // Load data and filter
+    document.addEventListener('DOMContentLoaded', () => {
+      renderFilteredCollections();
+    });
+
+    function renderFilteredCollections() {
+      const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
+      const gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
+      const reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
+
+      // Filter stories (can be type: video or photo)
+      const matchingStories = stories.filter(s => matchesCategory(s.category) || matchesCategory(s.type));
+      // Filter gallery frames
+      const matchingGallery = gallery.filter(g => matchesCategory(g.tag));
+      // Filter reels
+      const matchingReels = reels.filter(r => categoryQuery.toLowerCase() === 'reels' || matchesCategory(r.title));
+
+      let hasContent = false;
+
+      // ── RENDER FILMS (VIDEO STORIES) ──
+      const filmsGrid = document.getElementById('category-films-grid');
+      const filmsSection = document.getElementById('category-films-section');
+      const videoStories = matchingStories.filter(s => s.type !== 'photo');
+      
+      if (videoStories.length > 0 && categoryQuery.toLowerCase() !== 'reels') {
+        filmsGrid.innerHTML = '';
+        videoStories.forEach(story => {
+          const card = document.createElement('article');
+          card.className = 'movie-card';
+          card.onclick = () => playVideo(story.video);
+          card.innerHTML = `
+            <div class="movie-card-bg" style="background: url('${story.image || 'IMG_5711.PNG'}') center/cover no-repeat;"></div>
+            <div class="movie-card-gradient"></div>
+            <div class="card-play" aria-label="Play highlight">▶</div>
+            <div class="movie-card-info">
+              <div class="card-category">${story.category}</div>
+              <h3 class="card-title">${story.title}</h3>
+              <p class="card-meta">${story.location} · ${story.year}</p>
+            </div>
+          `;
+          filmsGrid.appendChild(card);
+        });
+        filmsSection.style.display = 'block';
+        hasContent = true;
+      }
+
+      // ── RENDER IMAGES / ALBUMS (PHOTO STORIES & FRAMES) ──
+      const photosGrid = document.getElementById('category-photos-grid');
+      const photosSection = document.getElementById('category-photos-section');
+      photosGrid.innerHTML = '';
+
+      const photoStories = matchingStories.filter(s => s.type === 'photo');
+      
+      // Render albums first (multi-photo)
+      if (photoStories.length > 0) {
+        photoStories.forEach(story => {
+          const card = document.createElement('div');
+          card.className = 'gallery-item';
+          card.onclick = () => openAlbumModal(story.album || [], story.title);
+          card.innerHTML = `
+            <img src="${story.image || 'IMG_5708.PNG'}" alt="${story.title}">
+            <div class="gallery-overlay" style="opacity: 1; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 80%);">
+              <div>
+                <div class="gallery-tag">📷 Photo Album (${story.album ? story.album.length : 0} photos)</div>
+                <div class="gallery-text">${story.title}</div>
+              </div>
+            </div>
+          `;
+          photosGrid.appendChild(card);
+        });
+        hasContent = true;
+      }
+
+      // Render individual frames
+      if (matchingGallery.length > 0 && categoryQuery.toLowerCase() !== 'reels') {
+        matchingGallery.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'gallery-item';
+          card.onclick = () => openLightbox(item.image, item.title);
+          card.innerHTML = `
+            <img src="${item.image}" alt="${item.title}">
+            <div class="gallery-overlay">
+              <div>
+                <div class="gallery-tag">${item.tag}</div>
+                <div class="gallery-text">${item.title}</div>
+              </div>
+            </div>
+          `;
+          photosGrid.appendChild(card);
+        });
+        hasContent = true;
+      }
+
+      if (photosGrid.children.length > 0) {
+        photosSection.style.display = 'block';
+      }
+
+      // ── RENDER REELS ──
+      const reelsGrid = document.getElementById('category-reels-grid');
+      const reelsSection = document.getElementById('category-reels-section');
+      
+      if (matchingReels.length > 0 && (categoryQuery.toLowerCase() === 'reels' || categoryQuery.toLowerCase() === 'creative')) {
+        reelsGrid.innerHTML = '';
+        matchingReels.forEach((reel, idx) => {
+          const card = document.createElement('article');
+          card.className = 'reel-card';
+          card.onclick = () => playVideo(reel.video);
+          
+          const hasCover = !!reel.image;
+          const bgHtml = hasCover 
+            ? `<div class="reel-bg" style="background: url('${reel.image}') center/cover no-repeat;"></div>` 
+            : `<div class="reel-bg" style="background: linear-gradient(135deg, ${getReelGradient(idx)} 0%, ${getReelGradient(idx+1)} 100%);"></div>`;
+
+          card.innerHTML = `
+            ${bgHtml}
+            <div class="reel-gradient"></div>
+            <div class="reel-play" aria-label="Play reel">▶</div>
+            <div class="reel-info">
+              <div class="reel-title">${reel.title}</div>
+              <div class="reel-views">${reel.views || '0 views'}</div>
+            </div>
+          `;
+          reelsGrid.appendChild(card);
+        });
+        reelsSection.style.display = 'block';
+        hasContent = true;
+      }
+
+      // ── EMPTY STATE ──
+      if (!hasContent) {
+        document.getElementById('category-empty-section').style.display = 'block';
+      }
+    }
+
+    function getReelGradient(index) {
+      const colors = ['#0066CC', '#28A745', '#0F172A', '#4F46E5', '#0891B2', '#059669', '#2563EB', '#10B981'];
+      return colors[index % colors.length];
+    }
+
+    // ── LIGHTBOX MODAL ──
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+
+    function openLightbox(imgSrc, captionText) {
+      lightboxImg.src = imgSrc;
+      lightboxCaption.textContent = captionText;
+      lightboxModal.classList.add('open');
+      lightboxModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+      lightboxModal.classList.remove('open');
+      lightboxModal.setAttribute('aria-hidden', 'true');
+      setTimeout(() => {
+        lightboxImg.src = "";
+        lightboxCaption.textContent = "";
+      }, 400);
+    }
+
+    // ── VIDEO MODAL & PLYR PLAYER ──
+    const videoModal = document.getElementById('video-modal');
+    let player;
+
+    function getYouTubeId(url) {
+      if (!url) return null;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function playVideo(url) {
+      const wrapper = document.getElementById('player-wrapper');
+      const ytId = getYouTubeId(url);
+
+      if (ytId) {
+        wrapper.innerHTML = `<div class="plyr__video-embed" id="player"><iframe src="https://www.youtube.com/embed/${ytId}?origin=${window.location.origin}&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1" allowfullscreen allowtransparency allow="autoplay"></iframe></div>`;
+        player = new Plyr('#player', {
+          controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+          youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+        });
+      } else {
+        wrapper.innerHTML = `<video id="player" playsinline controls><source src="${url}" type="video/mp4"></video>`;
+        player = new Plyr('#player', {
+          controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
+        });
+      }
+
+      videoModal.classList.add('open');
+      videoModal.setAttribute('aria-hidden', 'false');
+      
+      setTimeout(() => {
+        if (player) player.play();
+      }, 400);
+    }
+
+    function closeVideoModal() {
+      if (player) {
+        player.destroy();
+        player = null;
+      }
+      document.getElementById('player-wrapper').innerHTML = '';
+      videoModal.classList.remove('open');
+      videoModal.setAttribute('aria-hidden', 'true');
+    }
+
+    // ── ALBUM MODAL ──
+    const albumModal = document.getElementById('album-modal');
+    const albumImg = document.getElementById('album-active-img');
+    const albumCaption = document.getElementById('album-active-caption');
+    const albumCounter = document.getElementById('album-active-counter');
+    const albumThumbnails = document.getElementById('album-thumbnails');
+
+    let currentAlbumImages = [];
+    let currentAlbumTitle = '';
+    let currentAlbumIdx = 0;
+
+    function openAlbumModal(images, title) {
+      if (!images || images.length === 0) return;
+      currentAlbumImages = images;
+      currentAlbumTitle = title;
+      currentAlbumIdx = 0;
+      
+      albumModal.classList.add('open');
+      albumModal.setAttribute('aria-hidden', 'false');
+      
+      albumThumbnails.innerHTML = '';
+      images.forEach((imgSrc, idx) => {
+        const thumb = document.createElement('img');
+        thumb.className = 'album-thumb';
+        thumb.src = imgSrc;
+        thumb.alt = `Thumbnail ${idx+1}`;
+        thumb.onclick = () => showAlbumImage(idx);
+        albumThumbnails.appendChild(thumb);
+      });
+      
+      showAlbumImage(0);
+    }
+
+    function closeAlbumModal() {
+      albumModal.classList.remove('open');
+      albumModal.setAttribute('aria-hidden', 'true');
+      setTimeout(() => {
+        albumImg.src = '';
+        albumCaption.textContent = '';
+        albumCounter.textContent = '';
+        albumThumbnails.innerHTML = '';
+      }, 400);
+    }
+
+    function showAlbumImage(idx) {
+      if (idx < 0 || idx >= currentAlbumImages.length) return;
+      currentAlbumIdx = idx;
+      
+      albumImg.style.opacity = '0';
+      albumImg.style.transform = 'scale(0.98)';
+      
+      setTimeout(() => {
+        albumImg.src = currentAlbumImages[idx];
+        albumCaption.textContent = currentAlbumTitle;
+        albumCounter.textContent = `Photo ${idx + 1} of ${currentAlbumImages.length}`;
+        
+        const thumbs = albumThumbnails.querySelectorAll('.album-thumb');
+        thumbs.forEach((thumb, i) => {
+          thumb.classList.toggle('active', i === idx);
+        });
+        
+        const activeThumb = thumbs[idx];
+        if (activeThumb) {
+          activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+        
+        albumImg.style.opacity = '1';
+        albumImg.style.transform = 'scale(1)';
+      }, 150);
+    }
+
+    function nextAlbumImage() {
+      let nextIdx = currentAlbumIdx + 1;
+      if (nextIdx >= currentAlbumImages.length) nextIdx = 0;
+      showAlbumImage(nextIdx);
+    }
+
+    function prevAlbumImage() {
+      let prevIdx = currentAlbumIdx - 1;
+      if (prevIdx < 0) prevIdx = currentAlbumImages.length - 1;
+      showAlbumImage(prevIdx);
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (lightboxModal.classList.contains('open')) closeLightbox();
+        if (videoModal.classList.contains('open')) closeVideoModal();
+        if (albumModal.classList.contains('open')) closeAlbumModal();
+      }
+      if (albumModal.classList.contains('open')) {
+        if (e.key === 'ArrowRight') nextAlbumImage();
+        if (e.key === 'ArrowLeft') prevAlbumImage();
+      }
+    });
+  </script>
+</body>
+</html>
