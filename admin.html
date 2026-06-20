@@ -793,14 +793,23 @@
       loadStoriesGrid();
       if (!localStorage.getItem('skyleaf_reels')) {
         const defaultReels = [
-          { id: 1, title: "Monsoon Magic", video: "https://www.youtube.com/embed/2g811EoVkWc", views: "148K views", image: "" },
-          { id: 2, title: "First Look Tears", video: "https://www.youtube.com/embed/5K18w6Jc0z4", views: "92K views", image: "" },
-          { id: 3, title: "Golden Hour Vows", video: "https://www.youtube.com/embed/2V2k3F6wW0M", views: "211K views", image: "" },
-          { id: 4, title: "Instagram Cinematic Reel", video: "https://www.instagram.com/reel/Cz3y194vxV4/", views: "82K views", image: "" },
-          { id: 5, title: "Mehendi Evening", video: "https://www.youtube.com/embed/BvIuGzD4dD8", views: "183K views", image: "" },
-          { id: 6, title: "The Bidaai", video: "https://www.youtube.com/embed/2g811EoVkWc", views: "304K views", image: "" }
+          { id: 1, title: "Monsoon Love Story", video: "https://www.instagram.com/reel/DYXHOKRzdCk/", views: "185K views", image: "" },
+          { id: 2, title: "Together Forever", video: "https://www.instagram.com/reel/DZFT2n7zxg-/", views: "94K views", image: "" },
+          { id: 3, title: "Golden Hour Bliss", video: "https://www.instagram.com/reel/DZKo5yIPp8N/", views: "212K views", image: "" },
+          { id: 4, title: "Cinematic Wedding Moments", video: "https://www.instagram.com/reel/DYpc5JhiQcK/", views: "156K views", image: "" }
         ];
         localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
+      } else {
+        const defaultReels = [
+          { id: 1, title: "Monsoon Love Story", video: "https://www.instagram.com/reel/DYXHOKRzdCk/", views: "185K views", image: "" },
+          { id: 2, title: "Together Forever", video: "https://www.instagram.com/reel/DZFT2n7zxg-/", views: "94K views", image: "" },
+          { id: 3, title: "Golden Hour Bliss", video: "https://www.instagram.com/reel/DZKo5yIPp8N/", views: "212K views", image: "" },
+          { id: 4, title: "Cinematic Wedding Moments", video: "https://www.instagram.com/reel/DYpc5JhiQcK/", views: "156K views", image: "" }
+        ];
+        const currentReels = JSON.parse(localStorage.getItem('skyleaf_reels'));
+        if (currentReels && currentReels.length > 0 && (currentReels[0].video === "https://www.youtube.com/embed/2g811EoVkWc" || currentReels.length > 4)) {
+          localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
+        }
       }
       if (!localStorage.getItem('skyleaf_collections')) {
         const defaultCollections = [
