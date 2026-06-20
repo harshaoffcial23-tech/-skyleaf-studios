@@ -1964,19 +1964,46 @@ function getYouTubeId(url) {
   return null;
 }
 
+function getInstagramId(url) {
+  if (!url) return null;
+  const match = url.match(/instagram\.com\/(?:reel|p)\/([a-zA-Z0-9_-]+)/i);
+  return match ? match[1] : null;
+}
+
 // Function to dynamically load and play a video
 function playVideo(videoUrl) {
   if (!videoUrl) return;
   
   const isInsta = videoUrl.includes('instagram.com/reel/') || videoUrl.includes('instagram.com/p/');
-  if (isInsta) {
-    window.open(videoUrl, '_blank');
-    return;
-  }
-  
-  const ytId = getYouTubeId(videoUrl);
   const container = document.querySelector('.video-modal-container');
   const wrapper = document.querySelector('.video-wrapper');
+
+  if (isInsta) {
+    const instaId = getInstagramId(videoUrl);
+    if (instaId) {
+      if (player) {
+        player.destroy();
+        player = null;
+      }
+      if (container) {
+        container.style.aspectRatio = '9/16';
+        container.style.maxWidth = '380px';
+        container.style.height = '80vh';
+        container.style.maxHeight = '680px';
+        container.style.background = '#000';
+      }
+      wrapper.innerHTML = `
+        <iframe src="https://www.instagram.com/reel/${instaId}/embed" frameborder="0" scrolling="no" allowtransparency="true" style="width: 100%; height: 100%; border: none; border-radius: 8px;"></iframe>
+      `;
+      player = {
+        destroy: function() {}
+      };
+      videoModal.classList.add('open');
+      videoModal.setAttribute('aria-hidden', 'false');
+      return;
+    }
+  }
+  const ytId = getYouTubeId(videoUrl);
   
   if (player) {
     player.destroy();
