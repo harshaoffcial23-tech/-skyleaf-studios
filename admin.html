@@ -748,7 +748,65 @@
     </div>
   </div>
 
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
   <script>
+    /* ── DATABASE SYSTEM (FIREBASE REALTIME DB + LOCALSTORAGE FALLBACK) ── */
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const isFirebaseSetup = firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
+    let db = null;
+
+    if (isFirebaseSetup) {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+      } catch (error) {
+        console.error("Firebase initialization failed:", error);
+        db = null;
+      }
+    }
+
+    const DB = {
+      get: function(key, callback) {
+        if (db) {
+          db.ref(key).once('value')
+            .then(snapshot => {
+              callback(snapshot.val());
+            })
+            .catch(err => {
+              console.error(`Firebase read error for ${key}:`, err);
+              callback(JSON.parse(localStorage.getItem(key)));
+            });
+        } else {
+          callback(JSON.parse(localStorage.getItem(key)));
+        }
+      },
+      set: function(key, value, callback) {
+        localStorage.setItem(key, JSON.stringify(value));
+        if (db) {
+          db.ref(key).set(value)
+            .then(() => { if (callback) callback(); })
+            .catch(err => {
+              console.error(`Firebase write error for ${key}:`, err);
+              if (callback) callback();
+            });
+        } else {
+          if (callback) callback();
+        }
+      }
+    };
+
     // Login Verification
     const passkeyField = document.getElementById('passkey');
     passkeyField.addEventListener('keypress', (e) => {
@@ -788,71 +846,112 @@
       if (tabName === 'leads') loadLeadsTable();
     }
 
+    // Default Data
+    const defaultStories = [
+      { id: 1, title: "Forever Begins Here", category: "Wedding Film", type: "video", location: "Nellore", year: "2024", image: "IMG_5711.PNG", video: "https://www.youtube.com/embed/5K18w6Jc0z4" },
+      { id: 2, title: "Golden Hour Series", category: "Pre-Wedding Portfolio", type: "photo", location: "Goa", year: "2024", image: "IMG_5709.PNG", album: ["IMG_5708.PNG", "IMG_5711.PNG", "IMG_5709.PNG"] },
+      { id: 3, title: "Journey to Parenthood", category: "Baby Diary Portraits", type: "photo", location: "Hyderabad", year: "2024", image: "IMG_6060.JPG.jpeg", album: ["IMG_6060.JPG.jpeg", "IMG_5708.PNG", "IMG_5711.PNG"] },
+      { id: 4, title: "The Mehta Chronicles", category: "Family Story", type: "video", location: "Mumbai", year: "2024", image: "IMG_6060.JPG.jpeg", video: "https://www.youtube.com/embed/BvIuGzD4dD8" },
+      { id: 5, title: "Raat Bhar Jaag", category: "Wedding Film", type: "video", location: "Jaipur", year: "2023", image: "IMG_5708.PNG", video: "https://www.youtube.com/embed/2g811EoVkWc" }
+    ];
+
+    const defaultFeatured = {
+      title: "Monsoon Love Story",
+      emTitle: "Love",
+      type: "video",
+      location: "Udaipur, Rajasthan",
+      year: "2024",
+      description: "Amid monsoon mists and ancient havelis, two souls found their forever. A three-day wedding celebration that reads like a love poem — and lives on screen like a film.",
+      image: "IMG_5708.PNG",
+      video: "https://www.youtube.com/embed/2g811EoVkWc"
+    };
+
+    const defaultGallery = [
+      { id: 1, title: "Sunset Breeze", tag: "Pre-Wedding", image: "IMG_5708.PNG" },
+      { id: 2, title: "Golden Hour Glance", tag: "Pre-Wedding", image: "IMG_5711.PNG" },
+      { id: 3, title: "Pathway to Forever", tag: "Pre-Wedding", image: "IMG_5709.PNG" },
+      { id: 4, title: "Moments in Bloom", tag: "Portrait Session", image: "IMG_6060.JPG.jpeg" }
+    ];
+
+    const defaultReels = [
+      { id: 1, title: "Monsoon Love Story", video: "https://www.instagram.com/reel/DYXHOKRzdCk/", views: "185K views", image: "" },
+      { id: 2, title: "Together Forever", video: "https://www.instagram.com/reel/DZFT2n7zxg-/", views: "94K views", image: "" },
+      { id: 3, title: "Golden Hour Bliss", video: "https://www.instagram.com/reel/DZKo5yIPp8N/", views: "212K views", image: "" },
+      { id: 4, title: "Cinematic Wedding Moments", video: "https://www.instagram.com/reel/DYpc5JhiQcK/", views: "156K views", image: "" }
+    ];
+
+    const defaultCollections = [
+      { id: 1, num: "01", icon: "💍", title: "Wedding Photography & Cinematic Videography", desc: "From sangeet to bidaai — every ritual, every tear, every laugh, told as a film that outlasts the occasion.", link: "wedding" },
+      { id: 2, num: "02", icon: "🎬", title: "Pre-Wedding Films", desc: "Your story before the story. Shot at golden hour, in rain, in ruins — wherever love looks most like itself.", link: "pre-wedding" },
+      { id: 3, num: "03", icon: "🌿", title: "Baby & Newborn Stories", desc: "The first yawn. The first grip. The first everything. Captured with the softness those moments deserve.", link: "baby" },
+      { id: 4, num: "04", icon: "👨‍👩‍👧", title: "Family & Maternity Portraits", desc: "Not poses — moments. The chaos of Sunday mornings and the warmth of belonging, preserved on film.", link: "family" },
+      { id: 5, num: "05", icon: "📱", title: "Cinematic Reels", desc: "Short-form content that stops the scroll. Vertical films crafted for Instagram with the same care as a feature.", link: "reels" },
+      { id: 6, num: "06", icon: "🎥", title: "Creative Productions", desc: "Brand films, music videos, commercial shoots — visual storytelling for creators and businesses.", link: "creative" }
+    ];
+
     // Initialize Dashboard data
     function initDashboard() {
-      loadStoriesGrid();
-      if (!localStorage.getItem('skyleaf_reels')) {
-        const defaultReels = [
-          { id: 1, title: "Monsoon Love Story", video: "https://www.instagram.com/reel/DYXHOKRzdCk/", views: "185K views", image: "" },
-          { id: 2, title: "Together Forever", video: "https://www.instagram.com/reel/DZFT2n7zxg-/", views: "94K views", image: "" },
-          { id: 3, title: "Golden Hour Bliss", video: "https://www.instagram.com/reel/DZKo5yIPp8N/", views: "212K views", image: "" },
-          { id: 4, title: "Cinematic Wedding Moments", video: "https://www.instagram.com/reel/DYpc5JhiQcK/", views: "156K views", image: "" }
-        ];
-        localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
-      } else {
-        const defaultReels = [
-          { id: 1, title: "Monsoon Love Story", video: "https://www.instagram.com/reel/DYXHOKRzdCk/", views: "185K views", image: "" },
-          { id: 2, title: "Together Forever", video: "https://www.instagram.com/reel/DZFT2n7zxg-/", views: "94K views", image: "" },
-          { id: 3, title: "Golden Hour Bliss", video: "https://www.instagram.com/reel/DZKo5yIPp8N/", views: "212K views", image: "" },
-          { id: 4, title: "Cinematic Wedding Moments", video: "https://www.instagram.com/reel/DYpc5JhiQcK/", views: "156K views", image: "" }
-        ];
-        const currentReels = JSON.parse(localStorage.getItem('skyleaf_reels'));
-        if (currentReels && currentReels.length > 0 && (currentReels[0].video === "https://www.youtube.com/embed/2g811EoVkWc" || currentReels.length > 4)) {
-          localStorage.setItem('skyleaf_reels', JSON.stringify(defaultReels));
-        }
-      }
-      if (!localStorage.getItem('skyleaf_collections')) {
-        const defaultCollections = [
-          { id: 1, num: "01", icon: "💍", title: "Wedding Photography & Cinematic Videography", desc: "From sangeet to bidaai — every ritual, every tear, every laugh, told as a film that outlasts the occasion.", link: "wedding" },
-          { id: 2, num: "02", icon: "🎬", title: "Pre-Wedding Films", desc: "Your story before the story. Shot at golden hour, in rain, in ruins — wherever love looks most like itself.", link: "pre-wedding" },
-          { id: 3, num: "03", icon: "🌿", title: "Baby & Newborn Stories", desc: "The first yawn. The first grip. The first everything. Captured with the softness those moments deserve.", link: "baby" },
-          { id: 4, num: "04", icon: "👨‍👩‍👧", title: "Family & Maternity Portraits", desc: "Not poses — moments. The chaos of Sunday mornings and the warmth of belonging, preserved on film.", link: "family" },
-          { id: 5, num: "05", icon: "📱", title: "Cinematic Reels", desc: "Short-form content that stops the scroll. Vertical films crafted for Instagram with the same care as a feature.", link: "reels" },
-          { id: 6, num: "06", icon: "🎥", title: "Creative Productions", desc: "Brand films, music videos, commercial shoots — visual storytelling for creators and businesses.", link: "creative" }
-        ];
-        localStorage.setItem('skyleaf_collections', JSON.stringify(defaultCollections));
-      }
+      let loadedKeys = 0;
+      const keys = ['skyleaf_stories', 'skyleaf_featured', 'skyleaf_gallery', 'skyleaf_reels', 'skyleaf_collections'];
+      
+      keys.forEach(key => {
+        DB.get(key, (val) => {
+          // Seed default values if empty
+          if (!val) {
+            if (key === 'skyleaf_stories') val = defaultStories;
+            if (key === 'skyleaf_featured') val = defaultFeatured;
+            if (key === 'skyleaf_gallery') val = defaultGallery;
+            if (key === 'skyleaf_reels') val = defaultReels;
+            if (key === 'skyleaf_collections') val = defaultCollections;
+            
+            DB.set(key, val);
+          } else if (key === 'skyleaf_reels') {
+            // Upgrade legacy default data for existing users
+            if (val.length > 0 && (val[0].video === "https://www.youtube.com/embed/2g811EoVkWc" || val.length > 4)) {
+              val = defaultReels;
+              DB.set(key, val);
+            }
+          }
+          
+          loadedKeys++;
+          if (loadedKeys === keys.length) {
+            loadStoriesGrid();
+          }
+        });
+      });
     }
 
     let uploadedAlbum = [];
 
     // Load Tab 1 Stories
     function loadStoriesGrid() {
-      const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
-      const grid = document.getElementById('admin-stories-grid');
-      grid.innerHTML = '';
-      
-      stories.forEach(story => {
-        const card = document.createElement('div');
-        card.className = 'admin-story-card';
-        const isPhoto = story.type === 'photo';
-        card.innerHTML = `
-          <img class="admin-story-img" src="${story.image || 'IMG_5711.PNG'}" alt="">
-          <div class="admin-story-details">
-            <div class="admin-story-title">${story.title}</div>
-            <div class="admin-story-meta">
-              <span style="display:inline-block; padding: 2px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; border-radius: 4px; background: ${isPhoto ? 'rgba(40,167,69,0.1)' : 'rgba(0,102,204,0.1)'}; color: ${isPhoto ? 'var(--green)' : 'var(--blue)'}; margin-right: 6px;">
-                ${isPhoto ? '📷 Photo' : '🎥 Video'}
-              </span>
-              ${story.category} &middot; ${story.location} &middot; ${story.year}
+      DB.get('skyleaf_stories', (stories) => {
+        stories = stories || [];
+        const grid = document.getElementById('admin-stories-grid');
+        grid.innerHTML = '';
+        
+        stories.forEach(story => {
+          const card = document.createElement('div');
+          card.className = 'admin-story-card';
+          const isPhoto = story.type === 'photo';
+          card.innerHTML = `
+            <img class="admin-story-img" src="${story.image || 'IMG_5711.PNG'}" alt="">
+            <div class="admin-story-details">
+              <div class="admin-story-title">${story.title}</div>
+              <div class="admin-story-meta">
+                <span style="display:inline-block; padding: 2px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; border-radius: 4px; background: ${isPhoto ? 'rgba(40,167,69,0.1)' : 'rgba(0,102,204,0.1)'}; color: ${isPhoto ? 'var(--green)' : 'var(--blue)'}; margin-right: 6px;">
+                  ${isPhoto ? '📷 Photo' : '🎥 Video'}
+                </span>
+                ${story.category} &middot; ${story.location} &middot; ${story.year}
+              </div>
             </div>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="logout-btn" onclick="editStory(${story.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
-            <button class="delete-btn" onclick="deleteStory(${story.id})">Delete</button>
-          </div>
-        `;
-        grid.appendChild(card);
+            <div style="display: flex; gap: 8px;">
+              <button class="logout-btn" onclick="editStory(${story.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
+              <button class="delete-btn" onclick="deleteStory(${story.id})">Delete</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
       });
     }
 
@@ -951,96 +1050,105 @@
 
     function saveStory(e) {
       e.preventDefault();
-      const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
-      const editId = document.getElementById('edit-story-id').value;
-      
-      const storyType = document.getElementById('story-type').value;
-      const story = {
-        title: document.getElementById('story-title').value,
-        category: document.getElementById('story-category').value,
-        location: document.getElementById('story-location').value,
-        year: document.getElementById('story-year').value,
-        image: document.getElementById('story-image').value,
-        type: storyType
-      };
+      DB.get('skyleaf_stories', (stories) => {
+        stories = stories || [];
+        const editId = document.getElementById('edit-story-id').value;
+        
+        const storyType = document.getElementById('story-type').value;
+        const story = {
+          title: document.getElementById('story-title').value,
+          category: document.getElementById('story-category').value,
+          location: document.getElementById('story-location').value,
+          year: document.getElementById('story-year').value,
+          image: document.getElementById('story-image').value,
+          type: storyType
+        };
 
-      if (storyType === 'photo') {
-        story.album = uploadedAlbum;
-        story.video = '';
-      } else {
-        story.video = document.getElementById('story-video').value;
-        story.album = [];
-      }
-      
-      if (editId) {
-        // Edit existing
-        const idx = stories.findIndex(s => s.id == editId);
-        if (idx !== -1) {
-          story.id = parseInt(editId);
-          stories[idx] = story;
+        if (storyType === 'photo') {
+          story.album = uploadedAlbum;
+          story.video = '';
+        } else {
+          story.video = document.getElementById('story-video').value;
+          story.album = [];
         }
-      } else {
-        // Create new
-        story.id = Date.now();
-        stories.push(story);
-      }
-      
-      localStorage.setItem('skyleaf_stories', JSON.stringify(stories));
-      hideAddForm();
-      loadStoriesGrid();
+        
+        if (editId) {
+          // Edit existing
+          const idx = stories.findIndex(s => s.id == editId);
+          if (idx !== -1) {
+            story.id = parseInt(editId);
+            stories[idx] = story;
+          }
+        } else {
+          // Create new
+          story.id = Date.now();
+          stories.push(story);
+        }
+        
+        DB.set('skyleaf_stories', stories, () => {
+          hideAddForm();
+          loadStoriesGrid();
+        });
+      });
     }
 
     function editStory(id) {
-      const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
-      const story = stories.find(s => s.id == id);
-      if (!story) return;
-      
-      document.getElementById('form-action-title').textContent = 'Edit Movie Story';
-      document.getElementById('edit-story-id').value = story.id;
-      document.getElementById('story-title').value = story.title;
-      document.getElementById('story-category').value = story.category;
-      document.getElementById('story-location').value = story.location;
-      document.getElementById('story-year').value = story.year;
-      document.getElementById('story-image').value = story.image;
-      
-      const storyType = story.type || 'video';
-      document.getElementById('story-type').value = storyType;
-      
-      if (storyType === 'photo') {
-        uploadedAlbum = Array.isArray(story.album) ? [...story.album] : [];
-        document.getElementById('story-video').value = '';
-      } else {
-        uploadedAlbum = [];
-        document.getElementById('story-video').value = story.video || '';
-      }
-      
-      renderAlbumPreview();
-      toggleStoryTypeFields();
-      
-      document.getElementById('story-form-card').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      DB.get('skyleaf_stories', (stories) => {
+        stories = stories || [];
+        const story = stories.find(s => s.id == id);
+        if (!story) return;
+        
+        document.getElementById('form-action-title').textContent = 'Edit Movie Story';
+        document.getElementById('edit-story-id').value = story.id;
+        document.getElementById('story-title').value = story.title;
+        document.getElementById('story-category').value = story.category;
+        document.getElementById('story-location').value = story.location;
+        document.getElementById('story-year').value = story.year;
+        document.getElementById('story-image').value = story.image;
+        
+        const storyType = story.type || 'video';
+        document.getElementById('story-type').value = storyType;
+        
+        if (storyType === 'photo') {
+          uploadedAlbum = Array.isArray(story.album) ? [...story.album] : [];
+          document.getElementById('story-video').value = '';
+        } else {
+          uploadedAlbum = [];
+          document.getElementById('story-video').value = story.video || '';
+        }
+        
+        renderAlbumPreview();
+        toggleStoryTypeFields();
+        
+        document.getElementById('story-form-card').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
 
     function deleteStory(id) {
       if (!confirm('Are you sure you want to delete this story?')) return;
-      let stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
-      stories = stories.filter(s => s.id != id);
-      localStorage.setItem('skyleaf_stories', JSON.stringify(stories));
-      loadStoriesGrid();
+      DB.get('skyleaf_stories', (stories) => {
+        stories = stories || [];
+        stories = stories.filter(s => s.id != id);
+        DB.set('skyleaf_stories', stories, () => {
+          loadStoriesGrid();
+        });
+      });
     }
 
     // Tab 2: Featured Form
     function loadFeaturedForm() {
-      const featured = JSON.parse(localStorage.getItem('skyleaf_featured'));
-      if (!featured) return;
-      
-      document.getElementById('feat-title').value = featured.title;
-      document.getElementById('feat-em').value = featured.emTitle || '';
-      document.getElementById('feat-location').value = featured.location;
-      document.getElementById('feat-year').value = featured.year;
-      document.getElementById('feat-image').value = featured.image;
-      document.getElementById('feat-video').value = featured.video;
-      document.getElementById('feat-desc').value = featured.description;
+      DB.get('skyleaf_featured', (featured) => {
+        if (!featured) return;
+        
+        document.getElementById('feat-title').value = featured.title || '';
+        document.getElementById('feat-em').value = featured.emTitle || '';
+        document.getElementById('feat-location').value = featured.location || '';
+        document.getElementById('feat-year').value = featured.year || '';
+        document.getElementById('feat-image').value = featured.image || '';
+        document.getElementById('feat-video').value = featured.video || '';
+        document.getElementById('feat-desc').value = featured.description || '';
+      });
     }
 
     function saveFeatured(e) {
@@ -1054,97 +1162,105 @@
         video: document.getElementById('feat-video').value,
         description: document.getElementById('feat-desc').value
       };
-      localStorage.setItem('skyleaf_featured', JSON.stringify(featured));
-      alert('Featured Story Banner updated successfully!');
+      DB.set('skyleaf_featured', featured, () => {
+        alert('Featured Story Banner updated successfully!');
+      });
     }
 
     // Tab 3: Leads Table
     function loadLeadsTable() {
-      const leads = JSON.parse(localStorage.getItem('skyleaf_leads')) || [];
-      const tbody = document.getElementById('leads-tbody');
-      tbody.innerHTML = '';
-      
-      if (leads.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No client inquiries received yet.</td></tr>';
-        return;
-      }
-      
-      leads.forEach(lead => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>
-            <strong>${lead.name}</strong>
-          </td>
-          <td>
-            <div>📞 <a href="tel:${lead.phone}">${lead.phone}</a></div>
-            <div style="font-size:12px; margin-top:2px;">✉️ <a href="mailto:${lead.email}">${lead.email}</a></div>
-          </td>
-          <td><span style="background:var(--blue-glow); color:var(--blue); padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${lead.event}</span></td>
-          <td>${lead.date}</td>
-          <td>${lead.location}</td>
-          <td style="font-size:12px; color:var(--text-muted);">${lead.timestamp}</td>
-          <td>
-            <button class="delete-btn" onclick="deleteLead(${lead.id})">Delete</button>
-          </td>
-        `;
+      DB.get('skyleaf_leads', (leads) => {
+        leads = leads || [];
+        const tbody = document.getElementById('leads-tbody');
+        tbody.innerHTML = '';
         
-        // Let's add details row if they wrote a message
-        if (lead.message) {
-          const detailRow = document.createElement('tr');
-          detailRow.innerHTML = `
-            <td colspan="7" style="background:#F8FAFC; font-size:13px; color:var(--text-muted); border-top:none; padding:8px 16px 16px;">
-              <strong>Message:</strong> "${lead.message}"
+        if (leads.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No client inquiries received yet.</td></tr>';
+          return;
+        }
+        
+        leads.forEach(lead => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>
+              <strong>${lead.name}</strong>
+            </td>
+            <td>
+              <div>📞 <a href="tel:${lead.phone}">${lead.phone}</a></div>
+              <div style="font-size:12px; margin-top:2px;">✉️ <a href="mailto:${lead.email}">${lead.email}</a></div>
+            </td>
+            <td><span style="background:var(--blue-glow); color:var(--blue); padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${lead.event}</span></td>
+            <td>${lead.date}</td>
+            <td>${lead.location}</td>
+            <td style="font-size:12px; color:var(--text-muted);">${lead.timestamp}</td>
+            <td>
+              <button class="delete-btn" onclick="deleteLead(${lead.id})">Delete</button>
             </td>
           `;
-          tbody.appendChild(row);
-          tbody.appendChild(detailRow);
-        } else {
-          tbody.appendChild(row);
-        }
+          
+          if (lead.message) {
+            const detailRow = document.createElement('tr');
+            detailRow.innerHTML = `
+              <td colspan="7" style="background:#F8FAFC; font-size:13px; color:var(--text-muted); border-top:none; padding:8px 16px 16px;">
+                <strong>Message:</strong> "${lead.message}"
+              </td>
+            `;
+            tbody.appendChild(row);
+            tbody.appendChild(detailRow);
+          } else {
+            tbody.appendChild(row);
+          }
+        });
       });
     }
 
     function deleteLead(id) {
       if (!confirm('Are you sure you want to delete this inquiry?')) return;
-      let leads = JSON.parse(localStorage.getItem('skyleaf_leads')) || [];
-      leads = leads.filter(l => l.id != id);
-      localStorage.setItem('skyleaf_leads', JSON.stringify(leads));
-      loadLeadsTable();
+      DB.get('skyleaf_leads', (leads) => {
+        leads = leads || [];
+        leads = leads.filter(l => l.id != id);
+        DB.set('skyleaf_leads', leads, () => {
+          loadLeadsTable();
+        });
+      });
     }
 
     function clearLeads() {
       if (!confirm('Are you absolutely sure you want to clear ALL inquiries? This cannot be undone.')) return;
-      localStorage.setItem('skyleaf_leads', JSON.stringify([]));
-      loadLeadsTable();
+      DB.set('skyleaf_leads', [], () => {
+        loadLeadsTable();
+      });
     }
 
     // ── GALLERY PANEL OPERATIONS ──
     function loadGalleryGrid() {
-      const gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
-      const grid = document.getElementById('gallery-admin-grid');
-      grid.innerHTML = '';
+      DB.get('skyleaf_gallery', (gallery) => {
+        gallery = gallery || [];
+        const grid = document.getElementById('gallery-admin-grid');
+        grid.innerHTML = '';
 
-      if (gallery.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No frames added to the portfolio yet. Click "+ Add New Frame" to start.</div>';
-        return;
-      }
+        if (gallery.length === 0) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No frames added to the portfolio yet. Click "+ Add New Frame" to start.</div>';
+          return;
+        }
 
-      gallery.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'gallery-admin-item';
-        el.innerHTML = `
-          <div class="gallery-admin-img-wrap">
-            <img src="${item.image}" alt="${item.title}">
-          </div>
-          <div class="gallery-admin-info">
-            <div class="gallery-admin-tag">${item.tag}</div>
-            <div class="gallery-admin-title">${item.title}</div>
-            <div class="gallery-admin-actions">
-              <button class="logout-btn" onclick="deleteGalleryFrame(${item.id})" style="border-color: #d32f2f; color: #d32f2f; flex: 1; text-align: center;">Delete</button>
+        gallery.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'gallery-admin-item';
+          el.innerHTML = `
+            <div class="gallery-admin-img-wrap">
+              <img src="${item.image}" alt="${item.title}">
             </div>
-          </div>
-        `;
-        grid.appendChild(el);
+            <div class="gallery-admin-info">
+              <div class="gallery-admin-tag">${item.tag}</div>
+              <div class="gallery-admin-title">${item.title}</div>
+              <div class="gallery-admin-actions">
+                <button class="logout-btn" onclick="deleteGalleryFrame(${item.id})" style="border-color: #d32f2f; color: #d32f2f; flex: 1; text-align: center;">Delete</button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(el);
+        });
       });
     }
 
@@ -1167,62 +1283,70 @@
       const tag = document.getElementById('gallery-tag').value;
       const image = document.getElementById('gallery-image').value;
 
-      let gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
+      DB.get('skyleaf_gallery', (gallery) => {
+        gallery = gallery || [];
 
-      if (id) {
-        gallery = gallery.map(item => item.id == id ? { id: parseInt(id), title, tag, image } : item);
-      } else {
-        gallery.push({
-          id: Date.now(),
-          title,
-          tag,
-          image
+        if (id) {
+          gallery = gallery.map(item => item.id == id ? { id: parseInt(id), title, tag, image } : item);
+        } else {
+          gallery.push({
+            id: Date.now(),
+            title,
+            tag,
+            image
+          });
+        }
+
+        DB.set('skyleaf_gallery', gallery, () => {
+          hideAddGalleryModal();
+          loadGalleryGrid();
         });
-      }
-
-      localStorage.setItem('skyleaf_gallery', JSON.stringify(gallery));
-      hideAddGalleryModal();
-      loadGalleryGrid();
+      });
     }
 
     function deleteGalleryFrame(id) {
       if (!confirm('Are you sure you want to delete this frame from your portfolio?')) return;
-      let gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
-      gallery = gallery.filter(item => item.id !== id);
-      localStorage.setItem('skyleaf_gallery', JSON.stringify(gallery));
-      loadGalleryGrid();
+      DB.get('skyleaf_gallery', (gallery) => {
+        gallery = gallery || [];
+        gallery = gallery.filter(item => item.id !== id);
+        DB.set('skyleaf_gallery', gallery, () => {
+          loadGalleryGrid();
+        });
+      });
     }
 
     // ── REELS PANEL OPERATIONS ──
     function loadReelsGrid() {
-      const reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
-      const grid = document.getElementById('admin-reels-grid');
-      grid.innerHTML = '';
+      DB.get('skyleaf_reels', (reels) => {
+        reels = reels || [];
+        const grid = document.getElementById('admin-reels-grid');
+        grid.innerHTML = '';
 
-      if (reels.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No cinematic reels added yet. Click "+ Add New Reel" to start.</div>';
-        return;
-      }
+        if (reels.length === 0) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No cinematic reels added yet. Click "+ Add New Reel" to start.</div>';
+          return;
+        }
 
-      reels.forEach(reel => {
-        const card = document.createElement('div');
-        card.className = 'admin-story-card';
-        const hasCover = !!reel.image;
-        
-        card.innerHTML = `
-          ${hasCover ? `<img class="admin-story-img" src="${reel.image}" alt="">` : `<div class="admin-story-img" style="background: linear-gradient(135deg, var(--blue) 0%, var(--green) 100%); flex-shrink: 0;"></div>`}
-          <div class="admin-story-details">
-            <div class="admin-story-title">${reel.title}</div>
-            <div class="admin-story-meta">
-              📱 Reel &middot; ${reel.views || '0 views'}
+        reels.forEach(reel => {
+          const card = document.createElement('div');
+          card.className = 'admin-story-card';
+          const hasCover = !!reel.image;
+          
+          card.innerHTML = `
+            ${hasCover ? `<img class="admin-story-img" src="${reel.image}" alt="">` : `<div class="admin-story-img" style="background: linear-gradient(135deg, var(--blue) 0%, var(--green) 100%); flex-shrink: 0;"></div>`}
+            <div class="admin-story-details">
+              <div class="admin-story-title">${reel.title}</div>
+              <div class="admin-story-meta">
+                📱 Reel &middot; ${reel.views || '0 views'}
+              </div>
             </div>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="logout-btn" onclick="editReel(${reel.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
-            <button class="delete-btn" onclick="deleteReel(${reel.id})">Delete</button>
-          </div>
-        `;
-        grid.appendChild(card);
+            <div style="display: flex; gap: 8px;">
+              <button class="logout-btn" onclick="editReel(${reel.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
+              <button class="delete-btn" onclick="deleteReel(${reel.id})">Delete</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
       });
     }
 
@@ -1239,85 +1363,95 @@
 
     function saveReel(e) {
       e.preventDefault();
-      const reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
-      const editId = document.getElementById('edit-reel-id').value;
+      DB.get('skyleaf_reels', (reels) => {
+        reels = reels || [];
+        const editId = document.getElementById('edit-reel-id').value;
 
-      const reel = {
-        title: document.getElementById('reel-title').value,
-        views: document.getElementById('reel-views').value || '0 views',
-        video: document.getElementById('reel-video').value,
-        image: document.getElementById('reel-image').value || ''
-      };
+        const reel = {
+          title: document.getElementById('reel-title').value,
+          views: document.getElementById('reel-views').value || '0 views',
+          video: document.getElementById('reel-video').value,
+          image: document.getElementById('reel-image').value || ''
+        };
 
-      if (editId) {
-        const idx = reels.findIndex(r => r.id == editId);
-        if (idx !== -1) {
-          reel.id = parseInt(editId);
-          reels[idx] = reel;
+        if (editId) {
+          const idx = reels.findIndex(r => r.id == editId);
+          if (idx !== -1) {
+            reel.id = parseInt(editId);
+            reels[idx] = reel;
+          }
+        } else {
+          reel.id = Date.now();
+          reels.push(reel);
         }
-      } else {
-        reel.id = Date.now();
-        reels.push(reel);
-      }
 
-      localStorage.setItem('skyleaf_reels', JSON.stringify(reels));
-      hideAddReelForm();
-      loadReelsGrid();
+        DB.set('skyleaf_reels', reels, () => {
+          hideAddReelForm();
+          loadReelsGrid();
+        });
+      });
     }
 
     function editReel(id) {
-      const reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
-      const reel = reels.find(r => r.id == id);
-      if (!reel) return;
+      DB.get('skyleaf_reels', (reels) => {
+        reels = reels || [];
+        const reel = reels.find(r => r.id == id);
+        if (!reel) return;
 
-      document.getElementById('reel-form-action-title').textContent = 'Edit Cinematic Reel';
-      document.getElementById('edit-reel-id').value = reel.id;
-      document.getElementById('reel-title').value = reel.title;
-      document.getElementById('reel-views').value = reel.views || '';
-      document.getElementById('reel-video').value = reel.video;
-      document.getElementById('reel-image').value = reel.image || '';
+        document.getElementById('reel-form-action-title').textContent = 'Edit Cinematic Reel';
+        document.getElementById('edit-reel-id').value = reel.id;
+        document.getElementById('reel-title').value = reel.title;
+        document.getElementById('reel-views').value = reel.views || '';
+        document.getElementById('reel-video').value = reel.video;
+        document.getElementById('reel-image').value = reel.image || '';
 
-      document.getElementById('reel-form-card').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('reel-form-card').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
 
     function deleteReel(id) {
       if (!confirm('Are you sure you want to delete this reel?')) return;
-      let reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
-      reels = reels.filter(r => r.id != id);
-      localStorage.setItem('skyleaf_reels', JSON.stringify(reels));
-      loadReelsGrid();
+      DB.get('skyleaf_reels', (reels) => {
+        reels = reels || [];
+        reels = reels.filter(r => r.id != id);
+        DB.set('skyleaf_reels', reels, () => {
+          loadReelsGrid();
+        });
+      });
     }
 
     // ── COLLECTIONS PANEL OPERATIONS ──
     function loadCollectionsGrid() {
-      const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
-      const grid = document.getElementById('admin-collections-grid');
-      grid.innerHTML = '';
+      DB.get('skyleaf_collections', (collections) => {
+        collections = collections || [];
+        const grid = document.getElementById('admin-collections-grid');
+        grid.innerHTML = '';
 
-      if (collections.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No memory collections added yet. Click "+ Add New Collection" to start.</div>';
-        return;
-      }
+        if (collections.length === 0) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No memory collections added yet. Click "+ Add New Collection" to start.</div>';
+          return;
+        }
 
-      collections.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'admin-story-card';
-        
-        card.innerHTML = `
-          <div class="admin-story-img" style="display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0, 102, 204, 0.05); flex-shrink: 0; width: 60px; height: 80px; border-radius: 4px; border: 1px solid var(--border);">${item.icon || '📁'}</div>
-          <div class="admin-story-details">
-            <div class="admin-story-title">${item.title}</div>
-            <div class="admin-story-meta">
-              <span>Collection #${item.num}</span> &middot; <span>Slug: ${item.link}</span>
+        collections.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'admin-story-card';
+          
+          card.innerHTML = `
+            <div class="admin-story-img" style="display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0, 102, 204, 0.05); flex-shrink: 0; width: 60px; height: 80px; border-radius: 4px; border: 1px solid var(--border);">${item.icon || '📁'}</div>
+            <div class="admin-story-details">
+              <div class="admin-story-title">${item.title}</div>
+              <div class="admin-story-meta">
+                <span>Collection #${item.num}</span> &middot; <span>Slug: ${item.link}</span>
+              </div>
             </div>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="logout-btn" onclick="editCollection(${item.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
-            <button class="delete-btn" onclick="deleteCollection(${item.id})">Delete</button>
-          </div>
-        `;
-        grid.appendChild(card);
+            <div style="display: flex; gap: 8px;">
+              <button class="logout-btn" onclick="editCollection(${item.id})" style="border-color: var(--blue); color: var(--blue);">Edit</button>
+              <button class="delete-btn" onclick="deleteCollection(${item.id})">Delete</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
       });
     }
 
@@ -1334,56 +1468,64 @@
 
     function saveCollection(e) {
       e.preventDefault();
-      const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
-      const editId = document.getElementById('edit-collection-id').value;
+      DB.get('skyleaf_collections', (collections) => {
+        collections = collections || [];
+        const editId = document.getElementById('edit-collection-id').value;
 
-      const item = {
-        num: document.getElementById('coll-num').value,
-        icon: document.getElementById('coll-icon').value,
-        title: document.getElementById('coll-title').value,
-        link: document.getElementById('coll-link').value,
-        desc: document.getElementById('coll-desc').value
-      };
+        const item = {
+          num: document.getElementById('coll-num').value,
+          icon: document.getElementById('coll-icon').value,
+          title: document.getElementById('coll-title').value,
+          link: document.getElementById('coll-link').value,
+          desc: document.getElementById('coll-desc').value
+        };
 
-      if (editId) {
-        const idx = collections.findIndex(c => c.id == editId);
-        if (idx !== -1) {
-          item.id = parseInt(editId);
-          collections[idx] = item;
+        if (editId) {
+          const idx = collections.findIndex(c => c.id == editId);
+          if (idx !== -1) {
+            item.id = parseInt(editId);
+            collections[idx] = item;
+          }
+        } else {
+          item.id = Date.now();
+          collections.push(item);
         }
-      } else {
-        item.id = Date.now();
-        collections.push(item);
-      }
 
-      localStorage.setItem('skyleaf_collections', JSON.stringify(collections));
-      hideAddCollectionForm();
-      loadCollectionsGrid();
+        DB.set('skyleaf_collections', collections, () => {
+          hideAddCollectionForm();
+          loadCollectionsGrid();
+        });
+      });
     }
 
     function editCollection(id) {
-      const collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
-      const item = collections.find(c => c.id == id);
-      if (!item) return;
+      DB.get('skyleaf_collections', (collections) => {
+        collections = collections || [];
+        const item = collections.find(c => c.id == id);
+        if (!item) return;
 
-      document.getElementById('collection-form-action-title').textContent = 'Edit Collection';
-      document.getElementById('edit-collection-id').value = item.id;
-      document.getElementById('coll-num').value = item.num || '';
-      document.getElementById('coll-icon').value = item.icon || '';
-      document.getElementById('coll-title').value = item.title || '';
-      document.getElementById('coll-link').value = item.link || '';
-      document.getElementById('coll-desc').value = item.desc || '';
+        document.getElementById('collection-form-action-title').textContent = 'Edit Collection';
+        document.getElementById('edit-collection-id').value = item.id;
+        document.getElementById('coll-num').value = item.num || '';
+        document.getElementById('coll-icon').value = item.icon || '';
+        document.getElementById('coll-title').value = item.title || '';
+        document.getElementById('coll-link').value = item.link || '';
+        document.getElementById('coll-desc').value = item.desc || '';
 
-      document.getElementById('collection-form-card').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('collection-form-card').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
 
     function deleteCollection(id) {
       if (!confirm('Are you sure you want to delete this collection?')) return;
-      let collections = JSON.parse(localStorage.getItem('skyleaf_collections')) || [];
-      collections = collections.filter(c => c.id != id);
-      localStorage.setItem('skyleaf_collections', JSON.stringify(collections));
-      loadCollectionsGrid();
+      DB.get('skyleaf_collections', (collections) => {
+        collections = collections || [];
+        collections = collections.filter(c => c.id != id);
+        DB.set('skyleaf_collections', collections, () => {
+          loadCollectionsGrid();
+        });
+      });
     }
 
     // ── IMAGE FILE SELECTION & CANVAS COMPRESSION ──

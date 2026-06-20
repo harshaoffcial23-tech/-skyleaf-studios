@@ -537,10 +537,101 @@
     </div>
   </div>
 
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
   <!-- Plyr Video Player JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 
   <script>
+    /* ── DATABASE SYSTEM (FIREBASE REALTIME DB + LOCALSTORAGE FALLBACK) ── */
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const isFirebaseSetup = firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
+    let db = null;
+
+    if (isFirebaseSetup) {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+      } catch (error) {
+        console.error("Firebase initialization failed:", error);
+        db = null;
+      }
+    }
+
+    const DB = {
+      get: function(key, callback) {
+        if (db) {
+          db.ref(key).once('value')
+            .then(snapshot => {
+              callback(snapshot.val());
+            })
+            .catch(err => {
+              console.error(`Firebase read error for ${key}:`, err);
+              callback(JSON.parse(localStorage.getItem(key)));
+            });
+        } else {
+          callback(JSON.parse(localStorage.getItem(key)));
+        }
+      },
+      set: function(key, value, callback) {
+        localStorage.setItem(key, JSON.stringify(value));
+        if (db) {
+          db.ref(key).set(value)
+            .then(() => { if (callback) callback(); })
+            .catch(err => {
+              console.error(`Firebase write error for ${key}:`, err);
+              if (callback) callback();
+            });
+        } else {
+          if (callback) callback();
+        }
+      }
+    };
+
+    let appData = {
+      stories: [],
+      featured: {},
+      gallery: [],
+      reels: [],
+      collections: []
+    };
+
+    function initializeData(callback) {
+      let loadedKeys = 0;
+      const keys = ['skyleaf_stories', 'skyleaf_featured', 'skyleaf_gallery', 'skyleaf_reels', 'skyleaf_collections'];
+      
+      keys.forEach(key => {
+        DB.get(key, (val) => {
+          // Fallback settings if empty
+          if (!val) {
+            // Note: collections.html has these loaded after DOMContentLoaded so we close closure properly
+            loadedKeys++;
+            if (loadedKeys === keys.length) callback();
+            return;
+          }
+          
+          const propName = key.replace('skyleaf_', '');
+          appData[propName] = val;
+          
+          loadedKeys++;
+          if (loadedKeys === keys.length) {
+            callback();
+          }
+        });
+      });
+    }
+
     // Extract query parameters
     const urlParams = new URLSearchParams(window.location.search);
     const categoryQuery = urlParams.get('category') || '';
@@ -592,13 +683,15 @@
 
     // Load data and filter
     document.addEventListener('DOMContentLoaded', () => {
-      renderFilteredCollections();
+      initializeData(() => {
+        renderFilteredCollections();
+      });
     });
 
     function renderFilteredCollections() {
-      const stories = JSON.parse(localStorage.getItem('skyleaf_stories')) || [];
-      const gallery = JSON.parse(localStorage.getItem('skyleaf_gallery')) || [];
-      const reels = JSON.parse(localStorage.getItem('skyleaf_reels')) || [];
+      const stories = appData.stories || [];
+      const gallery = appData.gallery || [];
+      const reels = appData.reels || [];
 
       // Filter stories (can be type: video or photo)
       const matchingStories = stories.filter(s => matchesCategory(s.category) || matchesCategory(s.type));
