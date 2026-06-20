@@ -762,34 +762,18 @@
     }
 
     function playVideo(url) {
+      const isInsta = url.includes('instagram.com/reel/') || url.includes('instagram.com/p/');
+      if (isInsta) {
+        window.open(url, '_blank');
+        return;
+      }
+
       const wrapper = document.getElementById('player-wrapper');
       const container = document.querySelector('.video-container');
-      const isInsta = url.includes('instagram.com/reel/') || url.includes('instagram.com/p/');
-
+      
       if (player) {
         player.destroy();
         player = null;
-      }
-
-      if (isInsta) {
-        if (container) {
-          container.style.aspectRatio = '9/16';
-          container.style.maxWidth = '420px';
-          container.style.height = '85vh';
-          container.style.background = '#000';
-        }
-        const match = url.match(/(?:\/reel\/|\/p\/)([a-zA-Z0-9_-]+)/);
-        const instaId = match ? match[1] : null;
-        if (wrapper && instaId) {
-          wrapper.innerHTML = `
-            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000;">
-              <iframe src="https://www.instagram.com/reel/${instaId}/embed/" width="100%" height="100%" frameborder="0" scrolling="no" allowtransparency="true" style="border: none; width: 100%; height: 100%;"></iframe>
-            </div>
-          `;
-        }
-        videoModal.classList.add('open');
-        videoModal.setAttribute('aria-hidden', 'false');
-        return;
       }
 
       const ytId = getYouTubeId(url);
@@ -801,14 +785,18 @@
       }
 
       if (ytId) {
-        wrapper.innerHTML = `<div class="plyr__video-embed" id="player"><iframe src="https://www.youtube.com/embed/${ytId}?origin=${window.location.origin}&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1" allowfullscreen allowtransparency allow="autoplay"></iframe></div>`;
+        wrapper.innerHTML = `<div class="plyr__video-embed" id="player"><iframe src="https://www.youtube.com/embed/${ytId}?origin=${window.location.origin}&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1&amp;autoplay=1&amp;mute=1" allowfullscreen allowtransparency allow="autoplay"></iframe></div>`;
         player = new Plyr('#player', {
+          autoplay: true,
+          muted: true,
           controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-          youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+          youtube: { noCookie: true, rel: 0, autoplay: 1, mute: 1, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
         });
       } else {
-        wrapper.innerHTML = `<video id="player" playsinline controls><source src="${url}" type="video/mp4"></video>`;
+        wrapper.innerHTML = `<video id="player" playsinline controls autoplay muted><source src="${url}" type="video/mp4"></video>`;
         player = new Plyr('#player', {
+          autoplay: true,
+          muted: true,
           controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
         });
       }
